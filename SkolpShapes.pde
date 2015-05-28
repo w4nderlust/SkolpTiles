@@ -18,7 +18,7 @@ public color col2 = color(181, 114, 84);
 public color col3 = color(93, 52, 64);
 public color col4 = color(219, 187, 84);
 
-public float percent_margin_rect = 0.01;
+public float percent_margin_rect = 0.05;
 public float percent_margin_point = 0.15;
 
 public Rectangle[][] rect_matrix = new Rectangle[matrix_width][matrix_height];
@@ -55,10 +55,10 @@ void randomizeShape() {
        int w = (int) random(min_rect_width, max_rect_width);
        int h = (int) random(min_rect_height, max_rect_height);
        
-       int min_pos_x = shape_x + (i * x_range) + (int) (percent_margin_rect * x_range);
-       int max_pos_x = shape_x + ((i + 1) * x_range) - w - (int) (percent_margin_rect * x_range);
-       int min_pos_y = shape_y + (j * y_range) + (int) (percent_margin_rect * y_range);
-       int max_pos_y = shape_y + ((j + 1) * y_range) - h - (int) (percent_margin_rect * y_range);
+       int min_pos_x = shape_x + (i * x_range) + (int) (percent_margin_rect * (x_range - w));
+       int max_pos_x = shape_x + ((i + 1) * x_range) - w - (int) (percent_margin_rect * (x_range - w));
+       int min_pos_y = shape_y + (j * y_range) + (int) (percent_margin_rect * (y_range - h));
+       int max_pos_y = shape_y + ((j + 1) * y_range) - h - (int) (percent_margin_rect * (y_range - h));
        
        int ax = (int) random(min_pos_x, max_pos_x);
        int ay = (int) random(min_pos_y, max_pos_y);
