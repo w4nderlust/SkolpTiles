@@ -1,28 +1,32 @@
-public int widnow_width = 800;
-public int window_height= 600;
+public int widnow_width = 700;
+public int window_height= 700;
 
-public int shape_x = 200;
-public int shape_y = 100;
-public int shape_width = 400;
-public int shape_height = 400;
-public int matrix_width = 5; //min 2
-public int matrix_height = 5; // min 2
+public int shape_x = 50;
+public int shape_y = 50;
+public int shape_width = 600;
+public int shape_height = 600;
+public int matrix_width = 4; //min 2
+public int matrix_height = 4; // min 2
 
 public int min_rect_width = 20;
-public int max_rect_width = 50;
-public int min_rect_height = 10;
-public int max_rect_height = 30;
+public int max_rect_width = 80;
+public int min_rect_height = 20;
+public int max_rect_height = 80;
 
-public color col1 = color(0, 180, 0);
-public color col2 = color(100, 0, 0);
-public color col3 = color(180, 0, 0);
-public color col4 = color(0, 100, 0);
+public color col1 = color(34, 34, 45);
+public color col2 = color(181, 114, 84);
+public color col3 = color(93, 52, 64);
+public color col4 = color(219, 187, 84);
+
+public float percent_margin_rect = 0.01;
+public float percent_margin_point = 0.15;
 
 public Rectangle[][] rect_matrix = new Rectangle[matrix_width][matrix_height];
 public Point[][] point_matrix = new Point[matrix_width - 1][matrix_height - 1];
 
 public color white = color(255, 255, 255);
 public color black = color(0, 0, 0);
+public color grey = color(192, 192, 192);
 public color green = color(0, 255, 0);
 public boolean shouldRandomize = true;
 
@@ -34,7 +38,7 @@ void setup() {
 }
 
 void draw() {
-  background(black);
+  background(grey);
   if (shouldRandomize) {
     randomizeShape();
     shouldRandomize = false;
@@ -45,15 +49,16 @@ void draw() {
 void randomizeShape() {
   int x_range = shape_width / matrix_width;
   int y_range = shape_height / matrix_height;
+  
    for (int i = 0; i < matrix_width; i++) {
      for (int j = 0; j < matrix_height; j++) {
        int w = (int) random(min_rect_width, max_rect_width);
        int h = (int) random(min_rect_height, max_rect_height);
        
-       int min_pos_x = shape_x + (i * x_range);
-       int max_pos_x = shape_x + ((i + 1) * x_range) - w;
-       int min_pos_y = shape_y + (j * y_range);
-       int max_pos_y = shape_y + (((j + 1) * y_range) - h);
+       int min_pos_x = shape_x + (i * x_range) + (int) (percent_margin_rect * x_range);
+       int max_pos_x = shape_x + ((i + 1) * x_range) - w - (int) (percent_margin_rect * x_range);
+       int min_pos_y = shape_y + (j * y_range) + (int) (percent_margin_rect * y_range);
+       int max_pos_y = shape_y + ((j + 1) * y_range) - h - (int) (percent_margin_rect * y_range);
        
        int ax = (int) random(min_pos_x, max_pos_x);
        int ay = (int) random(min_pos_y, max_pos_y);
@@ -71,9 +76,14 @@ void randomizeShape() {
          int max_pos_x_point = min(ne.x, se.x);
          int min_pos_y_point = max(no.y + no.h, ne.y + ne.h);
          int max_pos_y_point = min(so.y, se.y);
+         int range_x = max_pos_x_point - min_pos_x_point;
+         int range_y = max_pos_y_point - min_pos_y_point;
          
-         point_matrix[i-1][j-1] = new Point((int) random(min_pos_x_point, max_pos_x_point),
-                                             (int) random(min_pos_y_point, max_pos_y_point));
+         point_matrix[i-1][j-1] = new Point(
+             (int) random(min_pos_x_point + (range_x * percent_margin_point), 
+                           max_pos_x_point - (range_x * percent_margin_point)),
+             (int) random(min_pos_y_point + (range_y * percent_margin_point), 
+                           max_pos_y_point - (range_y * percent_margin_point)));
        }
        
      }
