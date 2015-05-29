@@ -5,8 +5,8 @@ public int shape_x = 50;
 public int shape_y = 50;
 public int shape_width = 600;
 public int shape_height = 600;
-public int matrix_width = 10; //min 2
-public int matrix_height = 10; // min 2
+public int matrix_width = 3; //min 2
+public int matrix_height = 4; // min 2
 
 public float min_rect_width = 0.2;
 public float max_rect_width = 0.6;
@@ -105,8 +105,8 @@ void randomizeShape() {
           (int) random(min_range_y, max_range_y));
         }
         if (i == matrix_width - 1 && j == 1) {
-          int min_range_x = ne.x + (int) ((window_width - ne.x) * percent_min_external);
-          int max_range_x = ne.x + (int) ((window_width - ne.x) * percent_max_external);
+          int min_range_x = ne.x + ne.w + (int) ((window_width - (ne.x + ne.w)) * percent_min_external);
+          int max_range_x = ne.x + ne.w + (int) ((window_width - (ne.x + ne.w)) * percent_max_external);
           int min_range_y = ne.y - (int) (ne.y * percent_max_external);
           int max_range_y = ne.y - (int) (ne.y * percent_min_external);
           point_matrix[matrix_width][0] = new Point(
@@ -124,10 +124,10 @@ void randomizeShape() {
           (int) random(ne.y + ne.h, se.y));
         }
         if (i == matrix_width - 1 && j == matrix_height - 1) {
-          int min_range_x = se.x + (int) ((window_width - se.x) * percent_min_external);
-          int max_range_x = se.x + (int) ((window_width - se.x) * percent_max_external);
-          int min_range_y = se.y + (int) ((window_height - se.y) * percent_min_external);
-          int max_range_y = se.y + (int) ((window_height - se.y) * percent_max_external);
+          int min_range_x = se.x + se.w + (int) ((window_width - (se.x + se.w)) * percent_min_external);
+          int max_range_x = se.x + se.w + (int) ((window_width - (se.x + se.w)) * percent_max_external);
+          int min_range_y = se.y + se.h + (int) ((window_height - (se.y + se.h)) * percent_min_external);
+          int max_range_y = se.y + se.h + (int) ((window_height - (se.y + se.h)) * percent_max_external);
           point_matrix[matrix_width][matrix_height] = new Point(
           (int) random(min_range_x, max_range_x), 
           (int) random(min_range_y, max_range_y));
@@ -142,8 +142,8 @@ void randomizeShape() {
         if (i == 1 && j == matrix_height - 1) {
           int min_range_x = so.x - (int) (so.x * percent_max_external);
           int max_range_x = so.x - (int) (so.x * percent_min_external);
-          int min_range_y = so.y + (int) ((window_height - so.y) * percent_min_external);
-          int max_range_y = so.y + (int) ((window_height - so.y) * percent_max_external);
+          int min_range_y = so.y + so.h + (int) ((window_height - (so.y + so.h)) * percent_min_external);
+          int max_range_y = so.y + so.h + (int) ((window_height - (so.y + so.h)) * percent_max_external);
           point_matrix[0][matrix_height] = new Point(
           (int) random(min_range_x, max_range_x), 
           (int) random(min_range_y, max_range_y));
