@@ -166,7 +166,11 @@ void drawShape() {
       Rectangle rect = rect_matrix[i][j];
       fill(white);
       noStroke();
-      rect(rect.x, rect.y, rect.w, rect.h);
+      //rect(rect.x, rect.y, rect.w, rect.h);
+
+      rect.rollover(mouseX, mouseY);
+      rect.drag(mouseX, mouseY);
+      rect.display();
 
       if (i > 0 && j > 0) {
         boolean pair = (i + j) % 2 == 0;
@@ -231,7 +235,7 @@ void drawShape() {
             fill(col1);
           }
           triangle(no.x + no.w, no.y, ep.x, ep.y, ne.x, ne.y);
-          
+
           if (pair) {
             fill(col3);
           } else {
@@ -259,7 +263,7 @@ void drawShape() {
             fill(col4);
           }
           triangle(ne.x + ne.w, ne.y + ne.h, ep.x, ep.y, se.x + se.w, se.y);
-          
+
           if (pair) {
             fill(col1);
           } else {
@@ -287,7 +291,7 @@ void drawShape() {
             fill(col2);
           }
           triangle(so.x + so.w, so.y + so.h, ep.x, ep.y, se.x, se.y + se.h);
-          
+
           if (pair) {
             fill(col4);
           } else {
@@ -315,7 +319,7 @@ void drawShape() {
             fill(col3);
           }
           triangle(no.x, no.y + no.h, ep.x, ep.y, so.x, so.y);
-          
+
           if (pair) {
             fill(col2);
           } else {
@@ -328,20 +332,92 @@ void drawShape() {
   }
 }
 
-void mouseClicked() {
+void keyPressed() {
   shouldRandomize = true;
 }
+
+void mousePressed() {
+  for (int i = 0; i < matrix_width; i++) {
+    for (int j = 0; j < matrix_height; j++) {
+      rect_matrix[i][j].clicked(mouseX, mouseY);
+    }
+  }
+}
+
+void mouseReleased() {
+  for (int i = 0; i < matrix_width; i++) {
+    for (int j = 0; j < matrix_height; j++) {
+      rect_matrix[i][j].stopDragging();
+    }
+  }
+}
+
+
+
 
 class Rectangle {
   public int x;
   public int y;
   public int w;
   public int h;
-  public Rectangle(int x, int y, int w, int h) {
+
+  boolean dragging = false; // Is the object being dragged?
+  boolean rollover = false; // Is the mouse over the ellipse?
+
+  int offsetX, offsetY; // Mouseclick offset
+
+  Rectangle(int x, int y, int w, int h) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
+    offsetX = 0;
+    offsetY = 0;
+  }
+
+  // Method to display
+  void display() {
+    if (dragging || rollover) {
+      stroke(black);
+      strokeWeight(3);
+    } else {
+      noStroke();
+    }
+    fill(white);
+    rect(x, y, w, h);
+    noStroke();
+  }
+
+  // Is a point inside the rectangle (for click)?
+  void clicked(int mx, int my) {
+    if (mx > x && mx < x + w && my > y && my < y + h) {
+      dragging = true;
+      // If so, keep track of relative location of click to corner of rectangle
+      offsetX = x-mx;
+      offsetY = y-my;
+    }
+  }
+
+  // Is a point inside the rectangle (for rollover)
+  void rollover(int mx, int my) {
+    if (mx > x && mx < x + w && my > y && my < y + h) {
+      rollover = true;
+    } else {
+      rollover = false;
+    }
+  }
+
+  // Stop dragging
+  void stopDragging() {
+    dragging = false;
+  }
+
+  // Drag the rectangle
+  void drag(int mx, int my) {
+    if (dragging) {
+      x = mx + offsetX;
+      y = my + offsetY;
+    }
   }
 }
 
