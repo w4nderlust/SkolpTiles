@@ -116,9 +116,6 @@ void randomizeShape() {
         if (i == matrix_width -1) {
           int min_range_x = max(ne.x + ne.w, se.x + se.w) + (int) ((window_width - max(ne.x + ne.w, se.x + se.w)) * percent_min_external);
           int max_range_x = max(ne.x + ne.w, se.x + se.w) + (int) ((window_width - max(ne.x + ne.w, se.x + se.w)) * percent_max_external);
-          println(max(ne.x + ne.w, se.x + se.w));
-          println(min_range_x);
-          println(max_range_x);
           point_matrix[matrix_width][j] = new Point(
           (int) random(min_range_x, max_range_x), 
           (int) random(ne.y + ne.h, se.y));
@@ -163,15 +160,6 @@ void randomizeShape() {
 void drawShape() {
   for (int i = 0; i < matrix_width; i++) {
     for (int j = 0; j < matrix_height; j++) {
-      Rectangle rect = rect_matrix[i][j];
-      fill(white);
-      noStroke();
-      //rect(rect.x, rect.y, rect.w, rect.h);
-
-      rect.rollover(mouseX, mouseY);
-      rect.drag(mouseX, mouseY);
-      rect.display();
-
       if (i > 0 && j > 0) {
         boolean pair = (i + j) % 2 == 0;
 
@@ -328,6 +316,18 @@ void drawShape() {
           quad(ep.x, ep.y, prev.x, prev.y, so.x, so.y + so.h, so.x, so.y);
         }
       }
+    }
+  }
+  for (int i = 0; i < matrix_width; i++) {
+    for (int j = 0; j < matrix_height; j++) {
+      Rectangle rect = rect_matrix[i][j];
+      fill(white);
+      noStroke();
+      //rect(rect.x, rect.y, rect.w, rect.h);
+
+      rect.rollover(mouseX, mouseY);
+      rect.drag(mouseX, mouseY);
+      rect.display();
     }
   }
 }
