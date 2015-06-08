@@ -67,6 +67,8 @@ public color midGrey = color(128, 128, 128);
 public boolean shouldRandomize = true;
 public boolean recordPDF = false;
 
+public String fileName = "skolp_shape";
+public int fileNum = 0;
 
 void setup() {
   size(1080, 700);
@@ -441,7 +443,7 @@ void drawShape() {
           vertex(p.x, p.y);
           endShape();
         }
-        
+
         if (j == matrix_cols - 1) {
           if (pair) {
             fill(col1);
@@ -566,6 +568,193 @@ void drawShape() {
     }
   }
 }
+
+
+void drawPdf() {
+  fileNum++;
+  PGraphics pdf = createGraphics(700, 700, PDF, fileName + "-" + fileNum + ".pdf");
+  pdf.beginDraw();
+  pdf.colorMode(HSB, 360, 100, 100, 1);
+
+  pdf.noFill();
+  pdf.noStroke();
+  for (int i = 0; i < matrix_rows; i++) {
+    for (int j = 0; j < matrix_cols; j++) {
+
+      Rectangle rect = rect_matrix[i][j];
+      pdf.fill(colS);
+      pdf.rect(rect.x, rect.y, rect.w, rect.h);
+
+      if (i > 0 && j > 0) {
+        boolean pair = (i + j) % 2 == 0;
+
+        Point p = point_matrix[i][j];
+        Point pn = point_matrix[i][j-1];
+        Point pe = point_matrix[i+1][j];
+        Point ps = point_matrix[i][j+1];
+        Point po = point_matrix[i-1][j];
+
+        Rectangle no = rect_matrix[i-1][j-1];
+        Rectangle ne = rect_matrix[i][j-1];
+        Rectangle so = rect_matrix[i-1][j];
+        Rectangle se = rect_matrix[i][j];
+
+        if (pair) {
+          pdf.fill(col2);
+        } else {
+          pdf.fill(col1);
+        }
+        pdf.beginShape();
+        pdf.vertex(no.x + no.w, no.y + no.h);
+        pdf.vertex(no.x + no.w, no.y);
+        pdf.vertex(pn.x, pn.y);
+        pdf.vertex(ne.x, ne.y);
+        pdf.vertex(ne.x, ne.y + ne.h);
+        pdf.vertex(p.x, p.y);
+        pdf.endShape();
+
+        if (pair) {
+          pdf.fill(col4);
+        } else {
+          pdf.fill(col3);
+        }
+        pdf.beginShape();
+        pdf.vertex(so.x + so.w, so.y);
+        pdf.vertex(so.x, so.y);
+        pdf.vertex(po.x, po.y);
+        pdf.vertex(no.x, no.y + no.h);
+        pdf.vertex(no.x + no.w, no.y + no.h);
+        pdf.vertex(p.x, p.y);
+        pdf.endShape();
+
+        if (i == matrix_rows - 1) {
+          if (pair) {
+            pdf.fill(col3);
+          } else {
+            pdf.fill(col4);
+          }
+          pdf.beginShape();
+          pdf.vertex(ne.x, ne.y + ne.h);
+          pdf.vertex(ne.x + ne.w, ne.y + ne.h);
+          pdf.vertex(pe.x, pe.y);
+          pdf.vertex(se.x + se.w, se.y);
+          pdf.vertex(se.x, se.y);
+          pdf.vertex(p.x, p.y);
+          pdf.endShape();
+        }
+
+        if (j == matrix_cols - 1) {
+          if (pair) {
+            pdf.fill(col1);
+          } else {
+            pdf.fill(col2);
+          }
+          pdf.beginShape();
+          pdf.vertex(se.x, se.y);
+          pdf.vertex(se.x, se.y + se.h);
+          pdf.vertex(ps.x, ps.y);
+          pdf.vertex(so.x + so.w, so.y + so.h);
+          pdf.vertex(so.x + so.w, so.y);
+          pdf.vertex(p.x, p.y);
+          pdf.endShape();
+        }
+
+        // External
+        if (i == 1 && j == 1) {
+          Point angle = point_matrix[0][0];
+          Point ep = point_matrix[0][j];
+          if (pair) {
+            pdf.fill(col1);
+          } else {
+            pdf.fill(col2);
+          }
+          pdf.quad(angle.x, angle.y, ep.x, ep.y, no.x, no.y + no.h, no.x, no.y);
+        }
+        if (j == 1) {
+          Point prev = point_matrix[i-1][0];
+          Point ep = point_matrix[i][0];
+
+          if (pair) {
+            pdf.fill(col3);
+          } else {
+            pdf.fill(col4);
+          }
+          pdf.quad(prev.x, prev.y, ep.x, ep.y, no.x + no.w, no.y, no.x, no.y);
+        }
+        if (i == matrix_rows - 1 && j == 1) {
+          Point angle = point_matrix[matrix_rows][0];
+          Point ep = point_matrix[i][0];
+
+          if (pair) {
+            pdf.fill(col4);
+          } else {
+            pdf.fill(col3);
+          }
+          pdf.quad(ep.x, ep.y, angle.x, angle.y, ne.x + ne.w, ne.y, ne.x, ne.y);
+        }
+        if (i == matrix_rows - 1) {
+          Point prev = point_matrix[matrix_rows][j - 1];
+          Point ep = point_matrix[matrix_rows][j];
+
+          if (pair) {
+            pdf.fill(col1);
+          } else {
+            pdf.fill(col2);
+          }
+          pdf.quad(prev.x, prev.y, ep.x, ep.y, ne.x + ne.w, ne.y + ne.h, ne.x + ne.w, ne.y);
+        }
+        if (i == matrix_rows - 1 && j == matrix_cols - 1) {
+          Point angle = point_matrix[matrix_rows][matrix_cols];
+          Point ep = point_matrix[matrix_rows][j];
+
+          if (pair) {
+            pdf.fill(col2);
+          } else {
+            pdf.fill(col1);
+          }
+          pdf.quad(ep.x, ep.y, angle.x, angle.y, se.x + se.w, se.y + se.h, se.x + se.w, se.y);
+        }
+        if (j == matrix_cols - 1) {
+          Point prev = point_matrix[i + 1][matrix_cols];
+          Point ep = point_matrix[i][matrix_cols];
+
+          if (pair) {
+            pdf.fill(col4);
+          } else {
+            pdf.fill(col3);
+          }
+          pdf.quad(ep.x, ep.y, prev.x, prev.y, se.x + se.w, se.y + se.h, se.x, se.y + se.h);
+        }
+        if (i == 1 && j == matrix_cols - 1) {
+          Point angle = point_matrix[0][matrix_cols];
+          Point ep = point_matrix[i][matrix_cols];
+
+          if (pair) {
+            pdf.fill(col3);
+          } else {
+            pdf.fill(col4);
+          }
+          pdf.quad(ep.x, ep.y, angle.x, angle.y, so.x, so.y + so.h, so.x + so.w, so.y + so.h);
+        }
+        if (i == 1) {
+          Point prev = point_matrix[0][j + 1];
+          Point ep = point_matrix[0][j];
+
+          if (pair) {
+            pdf.fill(col2);
+          } else {
+            pdf.fill(col1);
+          }
+          pdf.quad(ep.x, ep.y, prev.x, prev.y, so.x, so.y + so.h, so.x, so.y);
+        }
+      }
+    }
+  }
+
+  pdf.dispose();
+  pdf.endDraw();
+}
+
 
 /*
 void keyPressed() {
@@ -741,6 +930,27 @@ void paintGradient(float x, float y, float w, float h) {
   }
 }
 
+void load() {
+  selectInput("Select a parameters file to load", "load_callback");
+}
+
+void load_callback(File selection) {
+  if (selection != null && selection.getName().toLowerCase().endsWith(".ser")) {
+    cp5.loadProperties(selection.getAbsolutePath());
+    generate();
+  }
+}
+
+void save() {
+  selectOutput("Select a parameters file to save to", "save_callback");
+}
+
+void save_callback(File selection) {
+  if (selection != null) {
+    cp5.saveProperties(selection.getAbsolutePath());
+  }
+}
+
 void hue1(float number) {
   hue1 = number;
   col1 = color(hue1, saturation1, brightness1);
@@ -875,3 +1085,6 @@ void generate() {
   shouldRandomize = true;
 }
 
+void export_pdf() {
+  drawPdf();
+}
