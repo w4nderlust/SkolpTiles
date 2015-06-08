@@ -182,37 +182,31 @@ void setup() {
         .setRange(0, 100)
           .setValue(75);
 
-  cp5.addSlider("padding")
-    .setPosition(710, 410)
-      .setSize(300, 15)
-        .setRange(0, 325)
-          .setValue(50);
-
   cp5.addSlider("rows")
-    .setPosition(710, 440)
+    .setPosition(710, 410)
       .setSize(300, 15)
         .setRange(2, 10)
           .setValue(3);
   cp5.addSlider("cols")
-    .setPosition(710, 455)
+    .setPosition(710, 425)
       .setSize(300, 15)
         .setRange(2, 10)
           .setValue(3);
 
   cp5.addSlider("margin_rect")
-    .setPosition(710, 485)
+    .setPosition(710, 455)
       .setSize(300, 15)
         .setRange(0, 0.5)
           .setValue(0.05);
   cp5.addSlider("margin_point")
-    .setPosition(710, 505)
+    .setPosition(710, 475)
       .setSize(300, 15)
         .setRange(0, 0.5)
           .setValue(0.15);
 
   Range range_rect_width = cp5.addRange("rect_width")
     .setBroadcast(false) 
-      .setPosition(710, 535)
+      .setPosition(710, 505)
         .setSize(300, 15)
           .setHandleSize(20)
             .setRange(0, 1)
@@ -221,16 +215,22 @@ void setup() {
 
   Range range_rect_height = cp5.addRange("rect_height")
     .setBroadcast(false) 
-      .setPosition(710, 550)
+      .setPosition(710, 520)
         .setSize(300, 15)
           .setHandleSize(20)
             .setRange(0, 1)
               .setRangeValues(0.2, 0.8)
                 .setBroadcast(true);
 
+  cp5.addSlider("padding")
+    .setPosition(710, 550)
+      .setSize(300, 15)
+        .setRange(0, 325)
+          .setValue(50);
+          
   Range range_eternal = cp5.addRange("external")
     .setBroadcast(false) 
-      .setPosition(710, 580)
+      .setPosition(710, 570)
         .setSize(300, 15)
           .setHandleSize(20)
             .setRange(0, 1)
@@ -238,12 +238,12 @@ void setup() {
                 .setBroadcast(true);
 
   Button generate = cp5.addButton("generate")
-    .setPosition(710, 620)
+    .setPosition(710, 610)
       .setSize(140, 50);
   generate.getCaptionLabel().align(CENTER, CENTER);
 
   Button export_pdf = cp5.addButton("export_pdf")
-    .setPosition(870, 620)
+    .setPosition(870, 610)
       .setSize(140, 50);
   export_pdf.getCaptionLabel().align(CENTER, CENTER);
 }
@@ -1045,13 +1045,6 @@ void brightnessB(float number) {
   colB = color(hueB, saturationB, brightnessB);
 }
 
-void padding(float number) {
-  shape_x = number;
-  shape_y = number;
-  shape_width = 700 - (2 * shape_x);
-  shape_height = 700 - (2 * shape_y);
-}
-
 void rows(int number) {
   rows = number;
 }
@@ -1068,6 +1061,12 @@ void margin_point(float number) {
   percent_margin_point = number;
 }
 
+void padding(float number) {
+  shape_x = number;
+  shape_y = number;
+  shape_width = 700 - (2 * shape_x);
+  shape_height = 700 - (2 * shape_y);
+}
 
 void controlEvent(ControlEvent event) {
   // min and max values are stored in an array.
