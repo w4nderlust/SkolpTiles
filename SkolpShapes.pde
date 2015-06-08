@@ -31,6 +31,7 @@ public color white = color(255, 255, 255);
 public color black = color(0, 0, 0);
 public color grey = color(192, 192, 192);
 public color green = color(0, 255, 0);
+public color midGrey = color(128, 128, 128);
 public boolean shouldRandomize = true;
 
 
@@ -164,6 +165,10 @@ void drawShape() {
         boolean pair = (i + j) % 2 == 0;
 
         Point p = point_matrix[i][j];
+        Point pn = point_matrix[i][j-1];
+        Point pe = point_matrix[i+1][j];
+        Point ps = point_matrix[i][j+1];
+        Point po = point_matrix[i-1][j];
 
         Rectangle no = rect_matrix[i-1][j-1];
         Rectangle ne = rect_matrix[i][j-1];
@@ -175,33 +180,57 @@ void drawShape() {
         } else {
           fill(col1);
         }
-        triangle(no.x + no.w, no.y + no.h, p.x, p.y, ne.x, ne.y + ne.h);
-        quad(ne.x, ne.y, ne.x, ne.y + ne.h, no.x + no.w, no.y + no.h, no.x + no.w, no.y);
-
+        beginShape();
+        vertex(no.x + no.w, no.y + no.h);
+        vertex(no.x + no.w, no.y);
+        vertex(pn.x, pn.y);
+        vertex(ne.x, ne.y);
+        vertex(ne.x, ne.y + ne.h);
+        vertex(p.x, p.y);
+        endShape();
+        
         if (pair) {
           fill(col3);
         } else {
           fill(col4);
         }
-        triangle(ne.x, ne.y + ne.h, p.x, p.y, se.x, se.y);
-        quad(se.x, se.y, se.x + se.w, se.y, ne.x + ne.w, ne.y + ne.h, ne.x, ne.y + ne.h);
-
+        beginShape();
+        vertex(ne.x, ne.y + ne.h);
+        vertex(ne.x + ne.w, ne.y + ne.h);
+        vertex(pe.x, pe.y);
+        vertex(se.x + se.w, se.y);
+        vertex(se.x, se.y);
+        vertex(p.x, p.y);
+        endShape();
+        
+        
         if (pair) {
           fill(col1);
         } else {
           fill(col2);
         }
-        triangle(se.x, se.y, p.x, p.y, so.x + so.w, so.y);
-        quad(so.x + so.w, so.y, so.x + so.w, so.y + so.h, se.x, se.y + se.h, se.x, se.y);
-
+        beginShape();
+        vertex(se.x, se.y);
+        vertex(se.x, se.y + se.h);
+        vertex(ps.x, ps.y);
+        vertex(so.x + so.w, so.y + so.h);
+        vertex(so.x + so.w, so.y);
+        vertex(p.x, p.y);
+        endShape();
+        
         if (pair) {
           fill(col4);
         } else {
           fill(col3);
         }
-        triangle(so.x + so.w, so.y, p.x, p.y, no.x + no.w, no.y + no.h);
-        quad(no.x, no.y + no.h, no.x + no.w, no.y + no.h, so.x + so.w, so.y, so.x, so.y);
-
+       beginShape();
+        vertex(so.x + so.w, so.y);
+        vertex(so.x, so.y);
+        vertex(po.x, po.y);
+        vertex(no.x, no.y + no.h);
+        vertex(no.x + no.w, no.y + no.h);
+        vertex(p.x, p.y);
+        endShape();
 
         // External
         if (i == 1 && j == 1) {
@@ -217,12 +246,6 @@ void drawShape() {
         if (j == 1) {
           Point prev = point_matrix[i-1][0];
           Point ep = point_matrix[i][0];
-          if (pair) {
-            fill(col2);
-          } else {
-            fill(col1);
-          }
-          triangle(no.x + no.w, no.y, ep.x, ep.y, ne.x, ne.y);
 
           if (pair) {
             fill(col3);
@@ -245,12 +268,6 @@ void drawShape() {
         if (i == matrix_width - 1) {
           Point prev = point_matrix[matrix_width][j - 1];
           Point ep = point_matrix[matrix_width][j];
-          if (pair) {
-            fill(col3);
-          } else {
-            fill(col4);
-          }
-          triangle(ne.x + ne.w, ne.y + ne.h, ep.x, ep.y, se.x + se.w, se.y);
 
           if (pair) {
             fill(col1);
@@ -273,12 +290,6 @@ void drawShape() {
         if (j == matrix_height - 1) {
           Point prev = point_matrix[i + 1][matrix_height];
           Point ep = point_matrix[i][matrix_height];
-          if (pair) {
-            fill(col1);
-          } else {
-            fill(col2);
-          }
-          triangle(so.x + so.w, so.y + so.h, ep.x, ep.y, se.x, se.y + se.h);
 
           if (pair) {
             fill(col4);
@@ -301,12 +312,6 @@ void drawShape() {
         if (i == 1) {
           Point prev = point_matrix[0][j + 1];
           Point ep = point_matrix[0][j];
-          if (pair) {
-            fill(col4);
-          } else {
-            fill(col3);
-          }
-          triangle(no.x, no.y + no.h, ep.x, ep.y, so.x, so.y);
 
           if (pair) {
             fill(col2);
@@ -318,13 +323,19 @@ void drawShape() {
       }
     }
   }
+  for (int i = 0; i < matrix_width + 1; i++) {
+    for (int j = 0; j < matrix_height + 1; j++) {
+      Point p = point_matrix[i][j];
+      p.rollover(mouseX, mouseY);
+      p.drag(mouseX, mouseY);
+      p.display();
+    }
+  }
   for (int i = 0; i < matrix_width; i++) {
     for (int j = 0; j < matrix_height; j++) {
       Rectangle rect = rect_matrix[i][j];
       fill(white);
       noStroke();
-      //rect(rect.x, rect.y, rect.w, rect.h);
-
       rect.rollover(mouseX, mouseY);
       rect.drag(mouseX, mouseY);
       rect.display();
@@ -342,12 +353,22 @@ void mousePressed() {
       rect_matrix[i][j].clicked(mouseX, mouseY);
     }
   }
+  for (int i = 0; i < matrix_width + 1; i++) {
+    for (int j = 0; j < matrix_height + 1; j++) {
+      point_matrix[i][j].clicked(mouseX, mouseY);
+    }
+  }
 }
 
 void mouseReleased() {
   for (int i = 0; i < matrix_width; i++) {
     for (int j = 0; j < matrix_height; j++) {
       rect_matrix[i][j].stopDragging();
+    }
+  }
+  for (int i = 0; i < matrix_width + 1; i++) {
+    for (int j = 0; j < matrix_height + 1; j++) {
+      point_matrix[i][j].stopDragging();
     }
   }
 }
@@ -361,8 +382,8 @@ class Rectangle {
   public int w;
   public int h;
 
-  boolean dragging = false; // Is the object being dragged?
-  boolean rollover = false; // Is the mouse over the ellipse?
+  boolean dragging = false; // Is the rectangle being dragged?
+  boolean rollover = false; // Is the mouse over the rectangle?
 
   int offsetX, offsetY; // Mouseclick offset
 
@@ -378,8 +399,8 @@ class Rectangle {
   // Method to display
   void display() {
     if (dragging || rollover) {
-      stroke(black);
-      strokeWeight(3);
+      stroke(midGrey);
+      strokeWeight(5);
     } else {
       noStroke();
     }
@@ -424,9 +445,60 @@ class Rectangle {
 class Point {
   public int x;
   public int y;
+
+  boolean dragging = false; // Is the rectangle being dragged?
+  boolean rollover = false; // Is the mouse over the rectangle?
+
+  int offsetX, offsetY; // Mouseclick offset
+
   public Point(int x, int y) {
     this.x = x;
     this.y = y;
+    offsetX = 0;
+    offsetY = 0;
+  }
+
+  // Method to display
+  void display() {
+    if (dragging || rollover) {
+      stroke(midGrey);
+      strokeWeight(5);
+      noFill();
+      ellipse(x, y, 20, 20);
+      noStroke();
+    }
+  }
+
+  // Is a point inside the rectangle (for click)?
+  void clicked(int mx, int my) {
+    if (mx > x - 10 && mx < x + 10 && my > y - 10 && my < y + 10) {
+      dragging = true;
+      // If so, keep track of relative location of click to corner of rectangle
+      offsetX = x-mx;
+      offsetY = y-my;
+    }
+  }
+
+  // Is a point around the point (for rollover)
+  void rollover(int mx, int my) {
+    if (mx > x - 10 && mx < x + 10 && my > y - 10 && my < y + 10) {
+      rollover = true;
+    } else {
+      rollover = false;
+    }
+  }
+
+  // Stop dragging
+  void stopDragging() {
+    dragging = false;
+  }
+
+  // Drag the rectangle
+  void drag(int mx, int my) {
+    if (dragging) {
+      x = mx + offsetX;
+      y = my + offsetY;
+    }
   }
 }
 
