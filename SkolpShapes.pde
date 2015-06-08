@@ -354,8 +354,12 @@ void randomizeShape() {
           random(min_range_y, max_range_y));
         }
         if (j == matrix_cols - 1) {
-          float min_range_y = max(so.y + so.w, se.y + so.w) + ((window_height - max(so.y + so.w, se.y + so.w)) * percent_min_external);
-          float max_range_y = max(so.y + so.w, se.y + so.w) + ((window_height - max(so.y + so.w, se.y + so.w)) * percent_max_external);
+          float min_range_y = max(so.y + so.h, se.y + se.h) + ((window_height - max(so.y + so.h, se.y + se.h)) * percent_min_external);
+          float max_range_y = max(so.y + so.h, se.y + se.h) + ((window_height - max(so.y + so.h, se.y + se.h)) * percent_max_external);
+          
+          println(min_range_y);
+          println(max_range_y);
+
           point_matrix[i][matrix_cols] = new Point(
           random(so.x + so.w, se.x), 
           random(min_range_y, max_range_y));
