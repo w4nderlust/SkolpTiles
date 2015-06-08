@@ -1,12 +1,19 @@
-public int window_width = 700;
-public int window_height= 700;
+import processing.pdf.*;
+import controlP5.*;
 
-public int shape_x = 50;
-public int shape_y = 50;
-public int shape_width = 600;
-public int shape_height = 600;
-public int matrix_width = 3; //min 2
-public int matrix_height = 4; // min 2
+public ControlP5 cp5;
+
+public float window_width = 700;
+public float window_height = 700;
+
+public float shape_x = 50;
+public float shape_y = 50;
+public float shape_width = 600;
+public float shape_height = 600;
+public int matrix_rows = 3; //min 2
+public int matrix_cols = 4; // min 2
+public int rows = 3; //min 2
+public int cols = 4; // min 2
 
 public float min_rect_width = 0.2;
 public float max_rect_width = 0.6;
@@ -20,12 +27,37 @@ public float percent_min_external = 0.1;
 public float percent_max_external = 0.5;
 
 public color col1 = color(219, 187, 84);
-public color col2 = color(93, 52, 64);
-public color col3 = color(181, 114, 84);
-public color col4 = color(34, 34, 45);
+public float hue1 = 0;
+public float saturation1 = 100;
+public float brightness1 = 100;
 
-public Rectangle[][] rect_matrix = new Rectangle[matrix_width][matrix_height];
-public Point[][] point_matrix = new Point[matrix_width + 1][matrix_height + 1];
+public color col2 = color(93, 52, 64);
+public float hue2 = 0;
+public float saturation2 = 100;
+public float brightness2 = 100;
+
+public color col3 = color(181, 114, 84);
+public float hue3 = 0;
+public float saturation3 = 100;
+public float brightness3 = 100;
+
+public color col4 = color(34, 34, 45);
+public float hue4 = 0;
+public float saturation4 = 100;
+public float brightness4 = 100;
+
+public color colS = color(255, 255, 255);
+public float hueS = 0;
+public float saturationS = 0;
+public float brightnessS = 100;
+
+public color colB = color(192, 192, 192);
+public float hueB = 0;
+public float saturationB = 0;
+public float brightnessB = 75;
+
+public Rectangle[][] rect_matrix;
+public Point[][] point_matrix;
 
 public color white = color(255, 255, 255);
 public color black = color(0, 0, 0);
@@ -33,16 +65,200 @@ public color grey = color(192, 192, 192);
 public color green = color(0, 255, 0);
 public color midGrey = color(128, 128, 128);
 public boolean shouldRandomize = true;
-
+public boolean recordPDF = false;
 
 
 void setup() {
-  size(window_width, window_height, OPENGL);
+  size(1080, 700);
   colorMode(HSB, 360, 100, 100, 1);
+
+  cp5 = new ControlP5(this);
+
+  Button buttonLoad = cp5.addButton("load")
+    .setPosition(710, 10)
+      .setSize(140, 20);
+  buttonLoad.getCaptionLabel().align(CENTER, CENTER);
+
+  Button buttonSave = cp5.addButton("save")
+    .setPosition(870, 10)
+      .setSize(140, 20);
+  buttonSave.getCaptionLabel().align(CENTER, CENTER);
+
+  cp5.addSlider("hue1")
+    .setPosition(710, 50)
+      .setSize(300, 15)
+        .setRange(0, 360)
+          .setValue(0);
+  cp5.addSlider("saturation1")
+    .setPosition(710, 65)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(0);
+  cp5.addSlider("brightness1")
+    .setPosition(710, 80)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(15);
+
+  cp5.addSlider("hue2")
+    .setPosition(710, 110)
+      .setSize(300, 15)
+        .setRange(0, 360)
+          .setValue(0);
+  cp5.addSlider("saturation2")
+    .setPosition(710, 125)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(0);
+  cp5.addSlider("brightness2")
+    .setPosition(710, 140)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(60);
+
+  cp5.addSlider("hue3")
+    .setPosition(710, 170)
+      .setSize(300, 15)
+        .setRange(0, 360)
+          .setValue(0);
+  cp5.addSlider("saturation3")
+    .setPosition(710, 185)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(0);
+  cp5.addSlider("brightness3")
+    .setPosition(710, 200)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(35);
+
+  cp5.addSlider("hue4")
+    .setPosition(710, 230)
+      .setSize(300, 15)
+        .setRange(0, 360)
+          .setValue(0);
+  cp5.addSlider("saturation4")
+    .setPosition(710, 245)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(0);
+  cp5.addSlider("brightness4")
+    .setPosition(710, 260)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(85);
+
+  cp5.addSlider("hueS")
+    .setPosition(710, 290)
+      .setSize(300, 15)
+        .setRange(0, 360)
+          .setValue(0);
+  cp5.addSlider("saturationS")
+    .setPosition(710, 305)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(0);
+  cp5.addSlider("brightnessS")
+    .setPosition(710, 320)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(100);
+
+  cp5.addSlider("hueB")
+    .setPosition(710, 350)
+      .setSize(300, 15)
+        .setRange(0, 360)
+          .setValue(0);
+  cp5.addSlider("saturationB")
+    .setPosition(710, 365)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(0);
+  cp5.addSlider("brightnessB")
+    .setPosition(710, 380)
+      .setSize(300, 15)
+        .setRange(0, 100)
+          .setValue(75);
+
+  cp5.addSlider("padding")
+    .setPosition(710, 410)
+      .setSize(300, 15)
+        .setRange(0, 325)
+          .setValue(50);
+
+  cp5.addSlider("rows")
+    .setPosition(710, 440)
+      .setSize(300, 15)
+        .setRange(2, 10)
+          .setValue(3);
+  cp5.addSlider("cols")
+    .setPosition(710, 455)
+      .setSize(300, 15)
+        .setRange(2, 10)
+          .setValue(3);
+
+  cp5.addSlider("margin_rect")
+    .setPosition(710, 485)
+      .setSize(300, 15)
+        .setRange(0, 0.5)
+          .setValue(0.05);
+  cp5.addSlider("margin_point")
+    .setPosition(710, 505)
+      .setSize(300, 15)
+        .setRange(0, 0.5)
+          .setValue(0.15);
+
+  Range range_rect_width = cp5.addRange("rect_width")
+    .setBroadcast(false) 
+      .setPosition(710, 535)
+        .setSize(300, 15)
+          .setHandleSize(20)
+            .setRange(0, 1)
+              .setRangeValues(0.2, 0.8)
+                .setBroadcast(true);
+
+  Range range_rect_height = cp5.addRange("rect_height")
+    .setBroadcast(false) 
+      .setPosition(710, 550)
+        .setSize(300, 15)
+          .setHandleSize(20)
+            .setRange(0, 1)
+              .setRangeValues(0.2, 0.8)
+                .setBroadcast(true);
+
+  Range range_eternal = cp5.addRange("external")
+    .setBroadcast(false) 
+      .setPosition(710, 580)
+        .setSize(300, 15)
+          .setHandleSize(20)
+            .setRange(0, 1)
+              .setRangeValues(0.1, 0.5)
+                .setBroadcast(true);
+
+  Button generate = cp5.addButton("generate")
+    .setPosition(710, 620)
+      .setSize(140, 50);
+  generate.getCaptionLabel().align(CENTER, CENTER);
+
+  Button export_pdf = cp5.addButton("export_pdf")
+    .setPosition(870, 620)
+      .setSize(140, 50);
+  export_pdf.getCaptionLabel().align(CENTER, CENTER);
 }
 
 void draw() {
-  background(grey);
+  background(colB);
+
+  fill(color(0, 0, 25));
+  rect(700, 0, 380, 700);
+
+  paintGradient(710, 49, 300, 1);
+  paintGradient(710, 109, 300, 1);
+  paintGradient(710, 169, 300, 1);
+  paintGradient(710, 229, 300, 1);
+  paintGradient(710, 289, 300, 1);
+  paintGradient(710, 349, 300, 1);
+
   if (shouldRandomize) {
     randomizeShape();
     shouldRandomize = false;
@@ -51,23 +267,28 @@ void draw() {
 }
 
 void randomizeShape() {
-  int x_range = shape_width / matrix_width;
-  int y_range = shape_height / matrix_height;
+  matrix_rows = rows;
+  matrix_cols = cols;
+  rect_matrix = new Rectangle[matrix_rows][matrix_cols];
+  point_matrix = new Point[matrix_rows + 1][matrix_cols + 1];
 
-  for (int i = 0; i < matrix_width; i++) {
-    for (int j = 0; j < matrix_height; j++) {
-      int w = (int) random(min_rect_width * x_range, max_rect_width * x_range);
-      int h = (int) random(min_rect_height * y_range, max_rect_height * y_range);
+  float x_range = shape_width / matrix_rows;
+  float y_range = shape_height / matrix_cols;
 
-      int min_pos_x = shape_x + (i * x_range) + (int) (percent_margin_rect * (x_range - w));
-      int max_pos_x = shape_x + ((i + 1) * x_range) - w - (int) (percent_margin_rect * (x_range - w));
-      int min_pos_y = shape_y + (j * y_range) + (int) (percent_margin_rect * (y_range - h));
-      int max_pos_y = shape_y + ((j + 1) * y_range) - h - (int) (percent_margin_rect * (y_range - h));
+  for (int i = 0; i < matrix_rows; i++) {
+    for (int j = 0; j < matrix_cols; j++) {
+      float w = random(min_rect_width * x_range, max_rect_width * x_range);
+      float h = random(min_rect_height * y_range, max_rect_height * y_range);
 
-      int ax = (int) random(min_pos_x, max_pos_x);
-      int ay = (int) random(min_pos_y, max_pos_y);
-      int aw = w;
-      int ah = h;
+      float min_pos_x = shape_x + (i * x_range) + (percent_margin_rect * (x_range - w));
+      float max_pos_x = shape_x + ((i + 1) * x_range) - w - (percent_margin_rect * (x_range - w));
+      float min_pos_y = shape_y + (j * y_range) + (percent_margin_rect * (y_range - h));
+      float max_pos_y = shape_y + ((j + 1) * y_range) - h - (percent_margin_rect * (y_range - h));
+
+      float ax = random(min_pos_x, max_pos_x);
+      float ay = random(min_pos_y, max_pos_y);
+      float aw = w;
+      float ah = h;
       rect_matrix[i][j] = new Rectangle(ax, ay, aw, ah);
 
       if (i > 0 && j > 0) {
@@ -76,82 +297,82 @@ void randomizeShape() {
         Rectangle so = rect_matrix[i-1][j];
         Rectangle se = rect_matrix[i][j];
 
-        int min_pos_x_point = max(no.x + no.w, so.x + so.w);
-        int max_pos_x_point = min(ne.x, se.x);
-        int min_pos_y_point = max(no.y + no.h, ne.y + ne.h);
-        int max_pos_y_point = min(so.y, se.y);
-        int range_x = max_pos_x_point - min_pos_x_point;
-        int range_y = max_pos_y_point - min_pos_y_point;
+        float min_pos_x_point = max(no.x + no.w, so.x + so.w);
+        float max_pos_x_point = min(ne.x, se.x);
+        float min_pos_y_point = max(no.y + no.h, ne.y + ne.h);
+        float max_pos_y_point = min(so.y, se.y);
+        float range_x = max_pos_x_point - min_pos_x_point;
+        float range_y = max_pos_y_point - min_pos_y_point;
 
         point_matrix[i][j] = new Point(
-        (int) random(min_pos_x_point + (range_x * percent_margin_point), 
+        random(min_pos_x_point + (range_x * percent_margin_point), 
         max_pos_x_point - (range_x * percent_margin_point)), 
-        (int) random(min_pos_y_point + (range_y * percent_margin_point), 
+        random(min_pos_y_point + (range_y * percent_margin_point), 
         max_pos_y_point - (range_y * percent_margin_point)));
 
         if (i == 1 && j == 1) {
-          int min_range_x = no.x - (int) (no.x * percent_max_external);
-          int max_range_x = no.x - (int) (no.x * percent_min_external);
-          int min_range_y = no.y - (int) (no.y * percent_max_external);
-          int max_range_y = no.y - (int) (no.y * percent_min_external);
+          float min_range_x = no.x - (no.x * percent_max_external);
+          float max_range_x = no.x - (no.x * percent_min_external);
+          float min_range_y = no.y - (no.y * percent_max_external);
+          float max_range_y = no.y - (no.y * percent_min_external);
           point_matrix[0][0] = new Point(
-          (int) random(min_range_x, max_range_x), 
-          (int) random(min_range_y, max_range_y));
+          random(min_range_x, max_range_x), 
+          random(min_range_y, max_range_y));
         }
         if (j == 1) {
-          int min_range_y = min(no.y, ne.y) - (int) (min(no.y, ne.y) * percent_max_external);
-          int max_range_y = min(no.y, ne.y) - (int) (min(no.y, ne.y) * percent_min_external);
+          float min_range_y = min(no.y, ne.y) - (min(no.y, ne.y) * percent_max_external);
+          float max_range_y = min(no.y, ne.y) - (min(no.y, ne.y) * percent_min_external);
           point_matrix[i][0] = new Point(
-          (int) random(no.x + no.w, ne.x), 
-          (int) random(min_range_y, max_range_y));
+          random(no.x + no.w, ne.x), 
+          random(min_range_y, max_range_y));
         }
-        if (i == matrix_width - 1 && j == 1) {
-          int min_range_x = ne.x + ne.w + (int) ((window_width - (ne.x + ne.w)) * percent_min_external);
-          int max_range_x = ne.x + ne.w + (int) ((window_width - (ne.x + ne.w)) * percent_max_external);
-          int min_range_y = ne.y - (int) (ne.y * percent_max_external);
-          int max_range_y = ne.y - (int) (ne.y * percent_min_external);
-          point_matrix[matrix_width][0] = new Point(
-          (int) random(min_range_x, max_range_x), 
-          (int) random(min_range_y, max_range_y));
+        if (i == matrix_rows - 1 && j == 1) {
+          float min_range_x = ne.x + ne.w + ((window_width - (ne.x + ne.w)) * percent_min_external);
+          float max_range_x = ne.x + ne.w + ((window_width - (ne.x + ne.w)) * percent_max_external);
+          float min_range_y = ne.y - (ne.y * percent_max_external);
+          float max_range_y = ne.y - (ne.y * percent_min_external);
+          point_matrix[matrix_rows][0] = new Point(
+          random(min_range_x, max_range_x), 
+          random(min_range_y, max_range_y));
         }
-        if (i == matrix_width -1) {
-          int min_range_x = max(ne.x + ne.w, se.x + se.w) + (int) ((window_width - max(ne.x + ne.w, se.x + se.w)) * percent_min_external);
-          int max_range_x = max(ne.x + ne.w, se.x + se.w) + (int) ((window_width - max(ne.x + ne.w, se.x + se.w)) * percent_max_external);
-          point_matrix[matrix_width][j] = new Point(
-          (int) random(min_range_x, max_range_x), 
-          (int) random(ne.y + ne.h, se.y));
+        if (i == matrix_rows -1) {
+          float min_range_x = max(ne.x + ne.w, se.x + se.w) + ((window_width - max(ne.x + ne.w, se.x + se.w)) * percent_min_external);
+          float max_range_x = max(ne.x + ne.w, se.x + se.w) + ((window_width - max(ne.x + ne.w, se.x + se.w)) * percent_max_external);
+          point_matrix[matrix_rows][j] = new Point(
+          random(min_range_x, max_range_x), 
+          random(ne.y + ne.h, se.y));
         }
-        if (i == matrix_width - 1 && j == matrix_height - 1) {
-          int min_range_x = se.x + se.w + (int) ((window_width - (se.x + se.w)) * percent_min_external);
-          int max_range_x = se.x + se.w + (int) ((window_width - (se.x + se.w)) * percent_max_external);
-          int min_range_y = se.y + se.h + (int) ((window_height - (se.y + se.h)) * percent_min_external);
-          int max_range_y = se.y + se.h + (int) ((window_height - (se.y + se.h)) * percent_max_external);
-          point_matrix[matrix_width][matrix_height] = new Point(
-          (int) random(min_range_x, max_range_x), 
-          (int) random(min_range_y, max_range_y));
+        if (i == matrix_rows - 1 && j == matrix_cols - 1) {
+          float min_range_x = se.x + se.w + ((window_width - (se.x + se.w)) * percent_min_external);
+          float max_range_x = se.x + se.w + ((window_width - (se.x + se.w)) * percent_max_external);
+          float min_range_y = se.y + se.h + ((window_height - (se.y + se.h)) * percent_min_external);
+          float max_range_y = se.y + se.h + ((window_height - (se.y + se.h)) * percent_max_external);
+          point_matrix[matrix_rows][matrix_cols] = new Point(
+          random(min_range_x, max_range_x), 
+          random(min_range_y, max_range_y));
         }
-        if (j == matrix_height - 1) {
-          int min_range_y = max(so.y + so.w, se.y + so.w) + (int) ((window_height - max(so.y + so.w, se.y + so.w)) * percent_min_external);
-          int max_range_y = max(so.y + so.w, se.y + so.w) + (int) ((window_height - max(so.y + so.w, se.y + so.w)) * percent_max_external);
-          point_matrix[i][matrix_height] = new Point(
-          (int) random(so.x + so.w, se.x), 
-          (int) random(min_range_y, max_range_y));
+        if (j == matrix_cols - 1) {
+          float min_range_y = max(so.y + so.w, se.y + so.w) + ((window_height - max(so.y + so.w, se.y + so.w)) * percent_min_external);
+          float max_range_y = max(so.y + so.w, se.y + so.w) + ((window_height - max(so.y + so.w, se.y + so.w)) * percent_max_external);
+          point_matrix[i][matrix_cols] = new Point(
+          random(so.x + so.w, se.x), 
+          random(min_range_y, max_range_y));
         }
-        if (i == 1 && j == matrix_height - 1) {
-          int min_range_x = so.x - (int) (so.x * percent_max_external);
-          int max_range_x = so.x - (int) (so.x * percent_min_external);
-          int min_range_y = so.y + so.h + (int) ((window_height - (so.y + so.h)) * percent_min_external);
-          int max_range_y = so.y + so.h + (int) ((window_height - (so.y + so.h)) * percent_max_external);
-          point_matrix[0][matrix_height] = new Point(
-          (int) random(min_range_x, max_range_x), 
-          (int) random(min_range_y, max_range_y));
+        if (i == 1 && j == matrix_cols - 1) {
+          float min_range_x = so.x - (so.x * percent_max_external);
+          float max_range_x = so.x - (so.x * percent_min_external);
+          float min_range_y = so.y + so.h + ((window_height - (so.y + so.h)) * percent_min_external);
+          float max_range_y = so.y + so.h + ((window_height - (so.y + so.h)) * percent_max_external);
+          point_matrix[0][matrix_cols] = new Point(
+          random(min_range_x, max_range_x), 
+          random(min_range_y, max_range_y));
         }
         if (i == 1) {
-          int min_range_x = min(so.x, no.x) - (int) (min(so.x, no.x) * percent_max_external);
-          int max_range_x = min(so.x, no.x) - (int) (min(so.x, no.x) * percent_min_external);
+          float min_range_x = min(so.x, no.x) - (min(so.x, no.x) * percent_max_external);
+          float max_range_x = min(so.x, no.x) - (min(so.x, no.x) * percent_min_external);
           point_matrix[0][j] = new Point(
-          (int) random(min_range_x, max_range_x), 
-          (int) random(no.y + no.h, so.y));
+          random(min_range_x, max_range_x), 
+          random(no.y + no.h, so.y));
         }
       }
     }
@@ -159,8 +380,10 @@ void randomizeShape() {
 }
 
 void drawShape() {
-  for (int i = 0; i < matrix_width; i++) {
-    for (int j = 0; j < matrix_height; j++) {
+  noFill();
+  noStroke();
+  for (int i = 0; i < matrix_rows; i++) {
+    for (int j = 0; j < matrix_cols; j++) {
       if (i > 0 && j > 0) {
         boolean pair = (i + j) % 2 == 0;
 
@@ -188,42 +411,13 @@ void drawShape() {
         vertex(ne.x, ne.y + ne.h);
         vertex(p.x, p.y);
         endShape();
-        
-        if (pair) {
-          fill(col3);
-        } else {
-          fill(col4);
-        }
-        beginShape();
-        vertex(ne.x, ne.y + ne.h);
-        vertex(ne.x + ne.w, ne.y + ne.h);
-        vertex(pe.x, pe.y);
-        vertex(se.x + se.w, se.y);
-        vertex(se.x, se.y);
-        vertex(p.x, p.y);
-        endShape();
-        
-        
-        if (pair) {
-          fill(col1);
-        } else {
-          fill(col2);
-        }
-        beginShape();
-        vertex(se.x, se.y);
-        vertex(se.x, se.y + se.h);
-        vertex(ps.x, ps.y);
-        vertex(so.x + so.w, so.y + so.h);
-        vertex(so.x + so.w, so.y);
-        vertex(p.x, p.y);
-        endShape();
-        
+
         if (pair) {
           fill(col4);
         } else {
           fill(col3);
         }
-       beginShape();
+        beginShape();
         vertex(so.x + so.w, so.y);
         vertex(so.x, so.y);
         vertex(po.x, po.y);
@@ -231,6 +425,38 @@ void drawShape() {
         vertex(no.x + no.w, no.y + no.h);
         vertex(p.x, p.y);
         endShape();
+
+        if (i == matrix_rows - 1) {
+          if (pair) {
+            fill(col3);
+          } else {
+            fill(col4);
+          }
+          beginShape();
+          vertex(ne.x, ne.y + ne.h);
+          vertex(ne.x + ne.w, ne.y + ne.h);
+          vertex(pe.x, pe.y);
+          vertex(se.x + se.w, se.y);
+          vertex(se.x, se.y);
+          vertex(p.x, p.y);
+          endShape();
+        }
+        
+        if (j == matrix_cols - 1) {
+          if (pair) {
+            fill(col1);
+          } else {
+            fill(col2);
+          }
+          beginShape();
+          vertex(se.x, se.y);
+          vertex(se.x, se.y + se.h);
+          vertex(ps.x, ps.y);
+          vertex(so.x + so.w, so.y + so.h);
+          vertex(so.x + so.w, so.y);
+          vertex(p.x, p.y);
+          endShape();
+        }
 
         // External
         if (i == 1 && j == 1) {
@@ -254,8 +480,8 @@ void drawShape() {
           }
           quad(prev.x, prev.y, ep.x, ep.y, no.x + no.w, no.y, no.x, no.y);
         }
-        if (i == matrix_width - 1 && j == 1) {
-          Point angle = point_matrix[matrix_width][0];
+        if (i == matrix_rows - 1 && j == 1) {
+          Point angle = point_matrix[matrix_rows][0];
           Point ep = point_matrix[i][0];
 
           if (pair) {
@@ -265,9 +491,9 @@ void drawShape() {
           }
           quad(ep.x, ep.y, angle.x, angle.y, ne.x + ne.w, ne.y, ne.x, ne.y);
         }
-        if (i == matrix_width - 1) {
-          Point prev = point_matrix[matrix_width][j - 1];
-          Point ep = point_matrix[matrix_width][j];
+        if (i == matrix_rows - 1) {
+          Point prev = point_matrix[matrix_rows][j - 1];
+          Point ep = point_matrix[matrix_rows][j];
 
           if (pair) {
             fill(col1);
@@ -276,9 +502,9 @@ void drawShape() {
           }
           quad(prev.x, prev.y, ep.x, ep.y, ne.x + ne.w, ne.y + ne.h, ne.x + ne.w, ne.y);
         }
-        if (i == matrix_width - 1 && j == matrix_height - 1) {
-          Point angle = point_matrix[matrix_width][matrix_height];
-          Point ep = point_matrix[matrix_width][j];
+        if (i == matrix_rows - 1 && j == matrix_cols - 1) {
+          Point angle = point_matrix[matrix_rows][matrix_cols];
+          Point ep = point_matrix[matrix_rows][j];
 
           if (pair) {
             fill(col2);
@@ -287,9 +513,9 @@ void drawShape() {
           }
           quad(ep.x, ep.y, angle.x, angle.y, se.x + se.w, se.y + se.h, se.x + se.w, se.y);
         }
-        if (j == matrix_height - 1) {
-          Point prev = point_matrix[i + 1][matrix_height];
-          Point ep = point_matrix[i][matrix_height];
+        if (j == matrix_cols - 1) {
+          Point prev = point_matrix[i + 1][matrix_cols];
+          Point ep = point_matrix[i][matrix_cols];
 
           if (pair) {
             fill(col4);
@@ -298,9 +524,9 @@ void drawShape() {
           }
           quad(ep.x, ep.y, prev.x, prev.y, se.x + se.w, se.y + se.h, se.x, se.y + se.h);
         }
-        if (i == 1 && j == matrix_height - 1) {
-          Point angle = point_matrix[0][matrix_height];
-          Point ep = point_matrix[i][matrix_height];
+        if (i == 1 && j == matrix_cols - 1) {
+          Point angle = point_matrix[0][matrix_cols];
+          Point ep = point_matrix[i][matrix_cols];
 
           if (pair) {
             fill(col3);
@@ -323,19 +549,17 @@ void drawShape() {
       }
     }
   }
-  for (int i = 0; i < matrix_width + 1; i++) {
-    for (int j = 0; j < matrix_height + 1; j++) {
+  for (int i = 0; i < matrix_rows + 1; i++) {
+    for (int j = 0; j < matrix_cols + 1; j++) {
       Point p = point_matrix[i][j];
       p.rollover(mouseX, mouseY);
       p.drag(mouseX, mouseY);
       p.display();
     }
   }
-  for (int i = 0; i < matrix_width; i++) {
-    for (int j = 0; j < matrix_height; j++) {
+  for (int i = 0; i < matrix_rows; i++) {
+    for (int j = 0; j < matrix_cols; j++) {
       Rectangle rect = rect_matrix[i][j];
-      fill(white);
-      noStroke();
       rect.rollover(mouseX, mouseY);
       rect.drag(mouseX, mouseY);
       rect.display();
@@ -343,31 +567,33 @@ void drawShape() {
   }
 }
 
+/*
 void keyPressed() {
-  shouldRandomize = true;
-}
+ shouldRandomize = true;
+ }
+ */
 
 void mousePressed() {
-  for (int i = 0; i < matrix_width; i++) {
-    for (int j = 0; j < matrix_height; j++) {
+  for (int i = 0; i < matrix_rows; i++) {
+    for (int j = 0; j < matrix_cols; j++) {
       rect_matrix[i][j].clicked(mouseX, mouseY);
     }
   }
-  for (int i = 0; i < matrix_width + 1; i++) {
-    for (int j = 0; j < matrix_height + 1; j++) {
+  for (int i = 0; i < matrix_rows + 1; i++) {
+    for (int j = 0; j < matrix_cols + 1; j++) {
       point_matrix[i][j].clicked(mouseX, mouseY);
     }
   }
 }
 
 void mouseReleased() {
-  for (int i = 0; i < matrix_width; i++) {
-    for (int j = 0; j < matrix_height; j++) {
+  for (int i = 0; i < matrix_rows; i++) {
+    for (int j = 0; j < matrix_cols; j++) {
       rect_matrix[i][j].stopDragging();
     }
   }
-  for (int i = 0; i < matrix_width + 1; i++) {
-    for (int j = 0; j < matrix_height + 1; j++) {
+  for (int i = 0; i < matrix_rows + 1; i++) {
+    for (int j = 0; j < matrix_cols + 1; j++) {
       point_matrix[i][j].stopDragging();
     }
   }
@@ -377,17 +603,17 @@ void mouseReleased() {
 
 
 class Rectangle {
-  public int x;
-  public int y;
-  public int w;
-  public int h;
+  public float x;
+  public float y;
+  public float w;
+  public float h;
 
   boolean dragging = false; // Is the rectangle being dragged?
   boolean rollover = false; // Is the mouse over the rectangle?
 
-  int offsetX, offsetY; // Mouseclick offset
+  float offsetX, offsetY; // Mouseclick offset
 
-  Rectangle(int x, int y, int w, int h) {
+  Rectangle(float x, float y, float w, float h) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -404,13 +630,13 @@ class Rectangle {
     } else {
       noStroke();
     }
-    fill(white);
+    fill(colS);
     rect(x, y, w, h);
     noStroke();
   }
 
   // Is a point inside the rectangle (for click)?
-  void clicked(int mx, int my) {
+  void clicked(float mx, float my) {
     if (mx > x && mx < x + w && my > y && my < y + h) {
       dragging = true;
       // If so, keep track of relative location of click to corner of rectangle
@@ -420,7 +646,7 @@ class Rectangle {
   }
 
   // Is a point inside the rectangle (for rollover)
-  void rollover(int mx, int my) {
+  void rollover(float mx, float my) {
     if (mx > x && mx < x + w && my > y && my < y + h) {
       rollover = true;
     } else {
@@ -434,7 +660,7 @@ class Rectangle {
   }
 
   // Drag the rectangle
-  void drag(int mx, int my) {
+  void drag(float mx, float my) {
     if (dragging) {
       x = mx + offsetX;
       y = my + offsetY;
@@ -443,15 +669,15 @@ class Rectangle {
 }
 
 class Point {
-  public int x;
-  public int y;
+  public float x;
+  public float y;
 
   boolean dragging = false; // Is the rectangle being dragged?
   boolean rollover = false; // Is the mouse over the rectangle?
 
-  int offsetX, offsetY; // Mouseclick offset
+  float offsetX, offsetY; // Mouseclick offset
 
-  public Point(int x, int y) {
+  public Point(float x, float y) {
     this.x = x;
     this.y = y;
     offsetX = 0;
@@ -470,7 +696,7 @@ class Point {
   }
 
   // Is a point inside the rectangle (for click)?
-  void clicked(int mx, int my) {
+  void clicked(float mx, float my) {
     if (mx > x - 10 && mx < x + 10 && my > y - 10 && my < y + 10) {
       dragging = true;
       // If so, keep track of relative location of click to corner of rectangle
@@ -480,7 +706,7 @@ class Point {
   }
 
   // Is a point around the point (for rollover)
-  void rollover(int mx, int my) {
+  void rollover(float mx, float my) {
     if (mx > x - 10 && mx < x + 10 && my > y - 10 && my < y + 10) {
       rollover = true;
     } else {
@@ -494,11 +720,158 @@ class Point {
   }
 
   // Drag the rectangle
-  void drag(int mx, int my) {
+  void drag(float mx, float my) {
     if (dragging) {
       x = mx + offsetX;
       y = my + offsetY;
     }
   }
+}
+
+
+
+
+// Controls
+void paintGradient(float x, float y, float w, float h) {
+  for (int i = 0; i < w; ++i) {
+    float hue = map(i/w, 0, 1, 0, 360);
+    stroke(hue, 100, 100);
+    strokeWeight(1);
+    line(x+i, y, x+i, y+h);
+  }
+}
+
+void hue1(float number) {
+  hue1 = number;
+  col1 = color(hue1, saturation1, brightness1);
+}
+
+void saturation1(float number) {
+  saturation1 = number;
+  col1 = color(hue1, saturation1, brightness1);
+}
+
+void brightness1(float number) {
+  brightness1 = number;
+  col1 = color(hue1, saturation1, brightness1);
+}
+
+void hue2(float number) {
+  hue2 = number;
+  col2 = color(hue2, saturation2, brightness2);
+}
+
+void saturation2(float number) {
+  saturation2 = number;
+  col2 = color(hue2, saturation2, brightness2);
+}
+
+void brightness2(float number) {
+  brightness2 = number;
+  col2 = color(hue2, saturation2, brightness2);
+}
+
+void hue3(float number) {
+  hue3 = number;
+  col3 = color(hue3, saturation3, brightness3);
+}
+
+void saturation3(float number) {
+  saturation3 = number;
+  col3 = color(hue3, saturation3, brightness3);
+}
+
+void brightness3(float number) {
+  brightness3 = number;
+  col3 = color(hue3, saturation3, brightness3);
+}
+
+void hue4(float number) {
+  hue4 = number;
+  col4 = color(hue4, saturation4, brightness4);
+}
+
+void saturation4(float number) {
+  saturation4 = number;
+  col4 = color(hue4, saturation4, brightness4);
+}
+
+void brightness4(float number) {
+  brightness4 = number;
+  col4 = color(hue4, saturation4, brightness4);
+}
+
+void hueS(float number) {
+  hueS = number;
+  colS = color(hueS, saturationS, brightnessS);
+}
+
+void saturationS(float number) {
+  saturationS = number;
+  colS = color(hueS, saturationS, brightnessS);
+}
+
+void brightnessS(float number) {
+  brightnessS = number;
+  colS = color(hueS, saturationS, brightnessS);
+}
+
+void hueB(float number) {
+  hueB = number;
+  colB = color(hueB, saturationB, brightnessB);
+}
+
+void saturationB(float number) {
+  saturationB = number;
+  colB = color(hueB, saturationB, brightnessB);
+}
+
+void brightnessB(float number) {
+  brightnessB = number;
+  colB = color(hueB, saturationB, brightnessB);
+}
+
+void padding(float number) {
+  shape_x = number;
+  shape_y = number;
+  shape_width = 700 - (2 * shape_x);
+  shape_height = 700 - (2 * shape_y);
+}
+
+void rows(int number) {
+  rows = number;
+}
+
+void cols(int number) {
+  cols = number;
+}
+
+void margin_rect(float number) {
+  percent_margin_rect = number;
+}
+
+void margin_point(float number) {
+  percent_margin_point = number;
+}
+
+
+void controlEvent(ControlEvent event) {
+  // min and max values are stored in an array.
+  // access this array with controller().arrayValue().
+  // min is at index 0, max is at index 1.
+  if (event.isFrom("rect_width")) {
+    min_rect_width = event.getController().getArrayValue(0);
+    max_rect_width = event.getController().getArrayValue(1);
+  } else if (event.isFrom("rect_height")) {
+    min_rect_height = event.getController().getArrayValue(0);
+    max_rect_height = event.getController().getArrayValue(1);
+  } else if (event.isFrom("external")) {
+    percent_min_external = event.getController().getArrayValue(0);
+    percent_max_external = event.getController().getArrayValue(1);
+  }
+}
+
+void generate() {
+  shouldRandomize = true;
 }
 
