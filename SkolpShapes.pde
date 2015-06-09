@@ -63,12 +63,12 @@ public color white = color(255, 255, 255);
 public color black = color(0, 0, 0);
 public color grey = color(192, 192, 192);
 public color green = color(0, 255, 0);
-public color midGrey = color(128, 128, 128);
 public boolean shouldRandomize = true;
 public boolean recordPDF = false;
 
 public String fileName = "skolp_shape";
 public int fileNum = 0;
+public float shape_border = 10;
 
 void setup() {
   size(1080, 700);
@@ -227,7 +227,7 @@ void setup() {
       .setSize(300, 15)
         .setRange(0, 325)
           .setValue(50);
-          
+
   Range range_eternal = cp5.addRange("external")
     .setBroadcast(false) 
       .setPosition(710, 570)
@@ -251,6 +251,13 @@ void setup() {
 void draw() {
   background(colB);
 
+  if (shouldRandomize) {
+    randomizeShape();
+    shouldRandomize = false;
+  }
+  drawShape();
+
+  //paint ui background and gradients
   fill(color(0, 0, 25));
   rect(700, 0, 380, 700);
 
@@ -260,12 +267,6 @@ void draw() {
   paintGradient(710, 229, 300, 1);
   paintGradient(710, 289, 300, 1);
   paintGradient(710, 349, 300, 1);
-
-  if (shouldRandomize) {
-    randomizeShape();
-    shouldRandomize = false;
-  }
-  drawShape();
 }
 
 void randomizeShape() {
@@ -356,10 +357,6 @@ void randomizeShape() {
         if (j == matrix_cols - 1) {
           float min_range_y = max(so.y + so.h, se.y + se.h) + ((window_height - max(so.y + so.h, se.y + se.h)) * percent_min_external);
           float max_range_y = max(so.y + so.h, se.y + se.h) + ((window_height - max(so.y + so.h, se.y + se.h)) * percent_max_external);
-          
-          println(min_range_y);
-          println(max_range_y);
-
           point_matrix[i][matrix_cols] = new Point(
           random(so.x + so.w, se.x), 
           random(min_range_y, max_range_y));
@@ -568,6 +565,7 @@ void drawShape() {
       Rectangle rect = rect_matrix[i][j];
       rect.rollover(mouseX, mouseY);
       rect.drag(mouseX, mouseY);
+      rect.resize(mouseX, mouseY);
       rect.display();
     }
   }
@@ -783,6 +781,7 @@ void mouseReleased() {
   for (int i = 0; i < matrix_rows; i++) {
     for (int j = 0; j < matrix_cols; j++) {
       rect_matrix[i][j].stopDragging();
+      rect_matrix[i][j].stopResizing();
     }
   }
   for (int i = 0; i < matrix_rows + 1; i++) {
@@ -803,6 +802,14 @@ class Rectangle {
 
   boolean dragging = false; // Is the rectangle being dragged?
   boolean rollover = false; // Is the mouse over the rectangle?
+  boolean resizing_top = false;
+  boolean rollover_top = false;
+  boolean resizing_right = false;
+  boolean rollover_right = false;
+  boolean resizing_bottom = false;
+  boolean rollover_bottom = false;
+  boolean resizing_left = false;
+  boolean rollover_left = false;
 
   float offsetX, offsetY; // Mouseclick offset
 
@@ -818,7 +825,7 @@ class Rectangle {
   // Method to display
   void display() {
     if (dragging || rollover) {
-      stroke(midGrey);
+      stroke(green);
       strokeWeight(5);
     } else {
       noStroke();
@@ -826,24 +833,100 @@ class Rectangle {
     fill(colS);
     rect(x, y, w, h);
     noStroke();
+    if (resizing_top || rollover_top) {
+      stroke(green);
+      strokeWeight(5);
+      line(x, y, x + w, y);
+      noStroke();
+    }
+    if (resizing_right || rollover_right) {
+      stroke(green);
+      strokeWeight(5);
+      line(x + w, y, x + w, y + h);
+      noStroke();
+    }
+    if (resizing_bottom || rollover_bottom) {
+      stroke(green);
+      strokeWeight(5);
+      line(x, y + h, x + w, y + h);
+      noStroke();
+    }
+    if (resizing_left || rollover_left) {
+      stroke(green);
+      strokeWeight(5);
+      line(x, y, x, y + h);
+      noStroke();
+    }
   }
 
   // Is a point inside the rectangle (for click)?
   void clicked(float mx, float my) {
-    if (mx > x && mx < x + w && my > y && my < y + h) {
+    if (mx > x + (shape_border / 2) && mx < x + w - (shape_border / 2) && my > y + (shape_border / 2) && my < y + h - (shape_border / 2)) {
       dragging = true;
       // If so, keep track of relative location of click to corner of rectangle
       offsetX = x-mx;
       offsetY = y-my;
+    } else if (mx > x && mx < x + w && my > y - (shape_border / 2)  && my < y + (shape_border / 2) ) {
+      // top
+      resizing_top = true;
+      offsetY = y-my;
+    } else if (mx > x + w - (shape_border / 2) && mx < x + w + (shape_border / 2) && my > y&& my < y + h) {
+      // right
+      resizing_right = true;
+      offsetX = x+w-mx;
+    } else if (mx > x && mx < x + w && my > y + h - (shape_border / 2)  && my < y + h + (shape_border / 2) ) {
+      // bottom
+      resizing_bottom = true;
+      offsetY = y+h-my;
+    } else if (mx > x - (shape_border / 2) && mx < x + (shape_border / 2) && my > y&& my < y + h) {
+      // left
+      resizing_left = true;
+      offsetX = x-mx;
     }
   }
 
   // Is a point inside the rectangle (for rollover)
   void rollover(float mx, float my) {
-    if (mx > x && mx < x + w && my > y && my < y + h) {
+    if (!resizing_top && !resizing_right && !resizing_bottom && !resizing_left && mx > x + (shape_border / 2) && mx < x + w - (shape_border / 2) && my > y + (shape_border / 2) && my < y + h - (shape_border / 2)) {
       rollover = true;
+      rollover_top = false;
+      rollover_right = false;
+      rollover_bottom = false;
+      rollover_left = false;
+    } else if (mx > x && mx < x + w && my > y - (shape_border / 2)  && my < y + (shape_border / 2) ) {
+      // top
+      rollover = false;
+      rollover_top = true;
+      rollover_right = false;
+      rollover_bottom = false;
+      rollover_left = false;
+    } else if (mx > x + w - (shape_border / 2) && mx < x + w + (shape_border / 2) && my > y&& my < y + h) {
+      // right
+      rollover = false;
+      rollover_top = false;
+      rollover_right = true;
+      rollover_bottom = false;
+      rollover_left = false;
+    } else if (mx > x && mx < x + w && my > y + h - (shape_border / 2)  && my < y + h + (shape_border / 2) ) {
+      // bottom
+      rollover = false;
+      rollover_top = false;
+      rollover_right = false;
+      rollover_bottom = true;
+      rollover_left = false;
+    } else if (mx > x - (shape_border / 2) && mx < x + (shape_border / 2) && my > y&& my < y + h) {
+      // left
+      rollover = false;
+      rollover_top = false;
+      rollover_right = false;
+      rollover_bottom = false;
+      rollover_left = true;
     } else {
       rollover = false;
+      rollover_top = false;
+      rollover_right = false;
+      rollover_bottom = false;
+      rollover_left = false;
     }
   }
 
@@ -852,11 +935,35 @@ class Rectangle {
     dragging = false;
   }
 
+  void stopResizing() {
+    resizing_top = false;
+    resizing_right = false;
+    resizing_bottom = false;
+    resizing_left = false;
+  }
+
   // Drag the rectangle
   void drag(float mx, float my) {
     if (dragging) {
       x = mx + offsetX;
       y = my + offsetY;
+    }
+  }
+
+  // Resize the rectangle
+  void resize(float mx, float my) {
+    if (resizing_top) {
+      float oldY = y;
+      y = my + offsetY;
+      h = h - y + oldY;
+    } else if (resizing_right) {
+      w = mx - x + offsetX;
+    } else if (resizing_bottom) {
+      h = my - y + offsetY;
+    } else if (resizing_left) {
+      float oldX = x;
+      x = mx + offsetX;
+      w = w - x + oldX;
     }
   }
 }
@@ -880,7 +987,7 @@ class Point {
   // Method to display
   void display() {
     if (dragging || rollover) {
-      stroke(midGrey);
+      stroke(green);
       strokeWeight(5);
       noFill();
       ellipse(x, y, 20, 20);
@@ -1091,3 +1198,4 @@ void generate() {
 void export_pdf() {
   drawPdf();
 }
+
