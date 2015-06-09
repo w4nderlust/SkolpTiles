@@ -56,6 +56,14 @@ public float hueB = 0;
 public float saturationB = 0;
 public float brightnessB = 75;
 
+public float hue_shift = 180; // between 0 and 360
+public int shift_direction = 1; // true means to the right, false to the left
+public int gradient_orientation = 8; // 0 means from top to bottom and then clockwise up to 7
+public float vertical_shift_step = 0;
+public float horizontal_shift_step = 0;
+public int dirX = 1;
+public int dirY = 1;
+
 public Rectangle[][] rect_matrix;
 public Point[][] point_matrix;
 
@@ -71,7 +79,7 @@ public int fileNum = 0;
 public float shape_border = 10;
 
 void setup() {
-  size(1080, 700);
+  size(1080, 700, OPENGL);
   colorMode(HSB, 360, 100, 100, 1);
 
   cp5 = new ControlP5(this);
@@ -237,14 +245,53 @@ void setup() {
               .setRangeValues(0.1, 0.5)
                 .setBroadcast(true);
 
+  cp5.addRadioButton("orientation")
+    .setPosition(710, 600)
+      .setSize(40, 20)
+        .setItemsPerRow(3)
+          .setItemHeight(15)
+            .setItemWidth(15)
+              .setSpacingColumn(25)
+                .setNoneSelectedAllowed(false)
+                  .addItem("NW", 7)
+                    .addItem("N", 0)
+                      .addItem("NE", 1)
+                        .addItem("W", 6)
+                          .addItem("-", 8)
+                            .addItem("E", 2)
+                              .addItem("SW", 5)
+                                .addItem("S", 4)
+                                  .addItem("SE", 3)
+                                    .activate(4)
+                                      ;
+
+  cp5.addSlider("hue_shift")
+    .setPosition(840, 600)
+      .setSize(170, 15)
+        .setRange(0, 360)
+          .setValue(180);
+
+  cp5.addRadioButton("direction")
+    .setPosition(840, 620)
+      .setSize(40, 20)
+        .setItemsPerRow(2)
+          .setItemHeight(15)
+            .setItemWidth(15)
+              .setSpacingColumn(25)
+                .setNoneSelectedAllowed(false)
+                  .addItem("right", 1)
+                    .addItem("left", -1)
+                      .activate(0)
+                        ;
+
   Button generate = cp5.addButton("generate")
-    .setPosition(710, 610)
-      .setSize(140, 50);
+    .setPosition(710, 660)
+      .setSize(140, 30);
   generate.getCaptionLabel().align(CENTER, CENTER);
 
   Button export_pdf = cp5.addButton("export_pdf")
-    .setPosition(870, 610)
-      .setSize(140, 50);
+    .setPosition(870, 660)
+      .setSize(140, 30);
   export_pdf.getCaptionLabel().align(CENTER, CENTER);
 }
 
@@ -383,6 +430,45 @@ void randomizeShape() {
 }
 
 void drawShape() {
+  switch (gradient_orientation) { 
+  case 0: 
+    vertical_shift_step = hue_shift / matrix_rows;
+    horizontal_shift_step = 0;
+    break;
+  case 1: 
+    vertical_shift_step = hue_shift / (matrix_rows * 2);
+    horizontal_shift_step = hue_shift / (matrix_cols * 2);
+    break;
+  case 2: 
+    vertical_shift_step = 0;
+    horizontal_shift_step = hue_shift / matrix_cols;
+    break;
+  case 3: 
+    vertical_shift_step = hue_shift / (matrix_rows * 2);
+    horizontal_shift_step = hue_shift / (matrix_cols * 2);
+    break;
+  case 4: 
+    vertical_shift_step = hue_shift / matrix_rows;
+    horizontal_shift_step = 0;
+    break;
+  case 5: 
+    vertical_shift_step = hue_shift / (matrix_rows * 2);
+    horizontal_shift_step = hue_shift / (matrix_cols * 2);
+    break;
+  case 6: 
+    vertical_shift_step = 0;
+    horizontal_shift_step = hue_shift / matrix_cols;
+    break;
+  case 7: 
+    vertical_shift_step = hue_shift / (matrix_rows * 2);
+    horizontal_shift_step = hue_shift / (matrix_cols * 2);
+    break;
+  case 8: 
+    vertical_shift_step = 0;
+    horizontal_shift_step = 0;
+    break;
+  }
+
   noFill();
   noStroke();
   for (int i = 0; i < matrix_rows; i++) {
@@ -402,9 +488,10 @@ void drawShape() {
         Rectangle se = rect_matrix[i][j];
 
         if (pair) {
-          fill(col2);
+
+          fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
         } else {
-          fill(col1);
+          fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1)));
         }
         beginShape();
         vertex(no.x + no.w, no.y + no.h);
@@ -416,9 +503,9 @@ void drawShape() {
         endShape();
 
         if (pair) {
-          fill(col4);
+          fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
         } else {
-          fill(col3);
+          fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
         }
         beginShape();
         vertex(so.x + so.w, so.y);
@@ -431,9 +518,9 @@ void drawShape() {
 
         if (i == matrix_rows - 1) {
           if (pair) {
-            fill(col3);
+            fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           } else {
-            fill(col4);
+            fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           }
           beginShape();
           vertex(ne.x, ne.y + ne.h);
@@ -447,9 +534,9 @@ void drawShape() {
 
         if (j == matrix_cols - 1) {
           if (pair) {
-            fill(col1);
+            fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1)));
           } else {
-            fill(col2);
+            fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           }
           beginShape();
           vertex(se.x, se.y);
@@ -466,9 +553,10 @@ void drawShape() {
           Point angle = point_matrix[0][0];
           Point ep = point_matrix[0][j];
           if (pair) {
-            fill(col1);
+            fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1))); 
+            ;
           } else {
-            fill(col2);
+            fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           }
           quad(angle.x, angle.y, ep.x, ep.y, no.x, no.y + no.h, no.x, no.y);
         }
@@ -477,9 +565,9 @@ void drawShape() {
           Point ep = point_matrix[i][0];
 
           if (pair) {
-            fill(col3);
+            fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           } else {
-            fill(col4);
+            fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           }
           quad(prev.x, prev.y, ep.x, ep.y, no.x + no.w, no.y, no.x, no.y);
         }
@@ -488,9 +576,9 @@ void drawShape() {
           Point ep = point_matrix[i][0];
 
           if (pair) {
-            fill(col4);
+            fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           } else {
-            fill(col3);
+            fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           }
           quad(ep.x, ep.y, angle.x, angle.y, ne.x + ne.w, ne.y, ne.x, ne.y);
         }
@@ -499,9 +587,10 @@ void drawShape() {
           Point ep = point_matrix[matrix_rows][j];
 
           if (pair) {
-            fill(col1);
+            fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1))); 
+            ;
           } else {
-            fill(col2);
+            fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           }
           quad(prev.x, prev.y, ep.x, ep.y, ne.x + ne.w, ne.y + ne.h, ne.x + ne.w, ne.y);
         }
@@ -510,9 +599,10 @@ void drawShape() {
           Point ep = point_matrix[matrix_rows][j];
 
           if (pair) {
-            fill(col2);
+            fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           } else {
-            fill(col1);
+            fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1))); 
+            ;
           }
           quad(ep.x, ep.y, angle.x, angle.y, se.x + se.w, se.y + se.h, se.x + se.w, se.y);
         }
@@ -521,9 +611,9 @@ void drawShape() {
           Point ep = point_matrix[i][matrix_cols];
 
           if (pair) {
-            fill(col4);
+            fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           } else {
-            fill(col3);
+            fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           }
           quad(ep.x, ep.y, prev.x, prev.y, se.x + se.w, se.y + se.h, se.x, se.y + se.h);
         }
@@ -532,9 +622,9 @@ void drawShape() {
           Point ep = point_matrix[i][matrix_cols];
 
           if (pair) {
-            fill(col3);
+            fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           } else {
-            fill(col4);
+            fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           }
           quad(ep.x, ep.y, angle.x, angle.y, so.x, so.y + so.h, so.x + so.w, so.y + so.h);
         }
@@ -543,9 +633,10 @@ void drawShape() {
           Point ep = point_matrix[0][j];
 
           if (pair) {
-            fill(col2);
+            fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           } else {
-            fill(col1);
+            fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1))); 
+            ;
           }
           quad(ep.x, ep.y, prev.x, prev.y, so.x, so.y + so.h, so.x, so.y);
         }
@@ -602,9 +693,10 @@ void drawPdf() {
         Rectangle se = rect_matrix[i][j];
 
         if (pair) {
-          pdf.fill(col2);
+          pdf.fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
         } else {
-          pdf.fill(col1);
+          pdf.fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1))); 
+          ;
         }
         pdf.beginShape();
         pdf.vertex(no.x + no.w, no.y + no.h);
@@ -616,9 +708,9 @@ void drawPdf() {
         pdf.endShape();
 
         if (pair) {
-          pdf.fill(col4);
+          pdf.fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
         } else {
-          pdf.fill(col3);
+          pdf.fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
         }
         pdf.beginShape();
         pdf.vertex(so.x + so.w, so.y);
@@ -631,9 +723,9 @@ void drawPdf() {
 
         if (i == matrix_rows - 1) {
           if (pair) {
-            pdf.fill(col3);
+            pdf.fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           } else {
-            pdf.fill(col4);
+            pdf.fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           }
           pdf.beginShape();
           pdf.vertex(ne.x, ne.y + ne.h);
@@ -647,9 +739,10 @@ void drawPdf() {
 
         if (j == matrix_cols - 1) {
           if (pair) {
-            pdf.fill(col1);
+            pdf.fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1))); 
+            ;
           } else {
-            pdf.fill(col2);
+            pdf.fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           }
           pdf.beginShape();
           pdf.vertex(se.x, se.y);
@@ -666,9 +759,10 @@ void drawPdf() {
           Point angle = point_matrix[0][0];
           Point ep = point_matrix[0][j];
           if (pair) {
-            pdf.fill(col1);
+            pdf.fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1))); 
+            ;
           } else {
-            pdf.fill(col2);
+            pdf.fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           }
           pdf.quad(angle.x, angle.y, ep.x, ep.y, no.x, no.y + no.h, no.x, no.y);
         }
@@ -677,9 +771,9 @@ void drawPdf() {
           Point ep = point_matrix[i][0];
 
           if (pair) {
-            pdf.fill(col3);
+            pdf.fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           } else {
-            pdf.fill(col4);
+            pdf.fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           }
           pdf.quad(prev.x, prev.y, ep.x, ep.y, no.x + no.w, no.y, no.x, no.y);
         }
@@ -688,9 +782,9 @@ void drawPdf() {
           Point ep = point_matrix[i][0];
 
           if (pair) {
-            pdf.fill(col4);
+            pdf.fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           } else {
-            pdf.fill(col3);
+            pdf.fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           }
           pdf.quad(ep.x, ep.y, angle.x, angle.y, ne.x + ne.w, ne.y, ne.x, ne.y);
         }
@@ -699,9 +793,9 @@ void drawPdf() {
           Point ep = point_matrix[matrix_rows][j];
 
           if (pair) {
-            pdf.fill(col1);
+            pdf.fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1)));
           } else {
-            pdf.fill(col2);
+            pdf.fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           }
           pdf.quad(prev.x, prev.y, ep.x, ep.y, ne.x + ne.w, ne.y + ne.h, ne.x + ne.w, ne.y);
         }
@@ -710,9 +804,9 @@ void drawPdf() {
           Point ep = point_matrix[matrix_rows][j];
 
           if (pair) {
-            pdf.fill(col2);
+            pdf.fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           } else {
-            pdf.fill(col1);
+            pdf.fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1)));
           }
           pdf.quad(ep.x, ep.y, angle.x, angle.y, se.x + se.w, se.y + se.h, se.x + se.w, se.y);
         }
@@ -721,9 +815,9 @@ void drawPdf() {
           Point ep = point_matrix[i][matrix_cols];
 
           if (pair) {
-            pdf.fill(col4);
+            pdf.fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           } else {
-            pdf.fill(col3);
+            pdf.fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           }
           pdf.quad(ep.x, ep.y, prev.x, prev.y, se.x + se.w, se.y + se.h, se.x, se.y + se.h);
         }
@@ -732,9 +826,9 @@ void drawPdf() {
           Point ep = point_matrix[i][matrix_cols];
 
           if (pair) {
-            pdf.fill(col3);
+            pdf.fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           } else {
-            pdf.fill(col4);
+            pdf.fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           }
           pdf.quad(ep.x, ep.y, angle.x, angle.y, so.x, so.y + so.h, so.x + so.w, so.y + so.h);
         }
@@ -743,7 +837,7 @@ void drawPdf() {
           Point ep = point_matrix[0][j];
 
           if (pair) {
-            pdf.fill(col2);
+            pdf.fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           } else {
             pdf.fill(col1);
           }
@@ -757,6 +851,17 @@ void drawPdf() {
   pdf.endDraw();
 }
 
+
+float rotateHue(color col, int i, int j) {
+  float val = (hue(col)
+    + (((matrix_cols + (j * dirY)) % matrix_cols) * shift_direction * vertical_shift_step)
+    + (((matrix_rows + (i * dirX)) % matrix_rows) * shift_direction * horizontal_shift_step))
+    % 360;
+  if (val < 0) {
+    val += 360;
+  }
+  return val;
+}
 
 /*
 void keyPressed() {
@@ -1189,6 +1294,30 @@ void controlEvent(ControlEvent event) {
     percent_min_external = event.getController().getArrayValue(0);
     percent_max_external = event.getController().getArrayValue(1);
   }
+}
+
+void orientation(int num) {
+  gradient_orientation = num;
+  if (num >= 1 && num <= 3) {
+    dirX = -1;
+  }
+  if (num >= 3 && num <= 5) {
+    dirY = -1;
+  }
+  if (num >= 5 && num <= 7) {
+    dirX = 1;
+  }
+  if (num >= 0 && num <= 1 || num == 7) {
+    dirY = 1;
+  }
+}
+
+void hue_shift(float num) {
+  hue_shift = num;
+}
+
+void direction(int num) {
+  shift_direction = num;
 }
 
 void generate() {
