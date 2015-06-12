@@ -29,15 +29,11 @@ PADDING and EXTERNAL regulates the amount of space aroung the shape and the posi
 
 The orientation of the gradient is regulated by nine radio buttons.
 
-![Gradient_Orientation](http://i.imgur.com/KW1fef8.jpg)
-
 HUE_SHIFT regulates the amount of shift on the hue wheel of the gradient. Higher values means higher shift.
-
-![Hue_shift](http://i.imgur.com/OdsJomp.jpg)
 
 LEFT and RIGHT regulate the direction of the shift.
 
-![Hue_left_right](http://i.imgur.com/BGuX1Zx.jpg)
+![Gradient](http://i.imgur.com/2phbde1.jpg)
 
 ## Examples
 
