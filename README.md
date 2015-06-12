@@ -39,6 +39,10 @@ LEFT and RIGHT regulate the direction of the shift.
 
 ![Hue_left_right](http://i.imgur.com/BGuX1Zx.jpg)
 
+## Examples
+
+![Examples](http://i.imgur.com/LaRILw5.jpg)
+
 ## License
 
 The script in released under MIT license
