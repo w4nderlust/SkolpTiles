@@ -284,14 +284,19 @@ void setup() {
                       .activate(0)
                         ;
 
-  Button generate = cp5.addButton("generate")
+  Button randomize = cp5.addButton("randomize")
     .setPosition(710, 660)
-      .setSize(140, 30);
+      .setSize(90, 30);
+  randomize.getCaptionLabel().align(CENTER, CENTER);
+  
+  Button generate = cp5.addButton("generate")
+    .setPosition(815, 660)
+      .setSize(90, 30);
   generate.getCaptionLabel().align(CENTER, CENTER);
 
   Button export_pdf = cp5.addButton("export_pdf")
-    .setPosition(870, 660)
-      .setSize(140, 30);
+    .setPosition(920, 660)
+      .setSize(90, 30);
   export_pdf.getCaptionLabel().align(CENTER, CENTER);
 }
 
@@ -1297,6 +1302,7 @@ void controlEvent(ControlEvent event) {
 }
 
 void orientation(int num) {
+  println(num);
   gradient_orientation = num;
   if (num >= 1 && num <= 3) {
     dirX = -1;
@@ -1318,6 +1324,59 @@ void hue_shift(float num) {
 
 void direction(int num) {
   shift_direction = num;
+}
+
+void randomize() {
+  cp5.getController("hue1").setValue(random(0, 360));
+  cp5.getController("saturation1").setValue(random(0, 100));
+  cp5.getController("brightness1").setValue(random(0, 100));
+  cp5.getController("hue2").setValue(random(0, 360));
+  cp5.getController("saturation2").setValue(random(0, 100));
+  cp5.getController("brightness2").setValue(random(0, 100));
+  cp5.getController("hue3").setValue(random(0, 360));
+  cp5.getController("saturation3").setValue(random(0, 100));
+  cp5.getController("brightness3").setValue(random(0, 100));
+  cp5.getController("hue4").setValue(random(0, 360));
+  cp5.getController("saturation4").setValue(random(0, 100));
+  cp5.getController("brightness4").setValue(random(0, 100));
+  cp5.getController("hueS").setValue(random(0, 360));
+  cp5.getController("saturationS").setValue(random(0, 100));
+  cp5.getController("brightnessS").setValue(random(0, 100));
+  cp5.getController("hueB").setValue(random(0, 360));
+  cp5.getController("saturationB").setValue(random(0, 100));
+  cp5.getController("brightnessB").setValue(random(0, 100));
+
+  cp5.getController("rows").setValue(random(2, 10));
+  cp5.getController("cols").setValue(random(2, 10));
+
+  cp5.getController("margin_rect").setValue(random(0, 0.5));
+  cp5.getController("margin_point").setValue(random(0, 0.5));
+
+  float r_rect_width_min = random(0, 1);
+  float r_rect_width_max = random(r_rect_width_min, 1);
+  ((Range) cp5.getController("rect_width")).setRangeValues(r_rect_width_min, r_rect_width_max);
+
+  float r_rect_height_min = random(0, 1);
+  float r_rect_height_max = random(r_rect_width_min, 1);
+  ((Range) cp5.getController("rect_height")).setRangeValues(r_rect_width_min, r_rect_width_max);
+
+  cp5.getController("padding").setValue(random(0, 325));
+
+  float r_external_min = random(0, 1);
+  float r_external_max = random(r_rect_width_min, 1);
+  ((Range) cp5.getController("external")).setRangeValues(r_rect_width_min, r_rect_width_max);
+
+  int r_orientation = (int) random(0, 9);
+  ((RadioButton) cp5.get("orientation")).activate(r_orientation);
+  orientation(r_orientation);
+  
+  cp5.getController("hue_shift").setValue(random(0, 360));
+
+  int r_direction = (int) random(0, 2);
+  ((RadioButton) cp5.get("direction")).activate(r_direction);
+  direction(r_direction);
+  
+  shouldRandomize = true;
 }
 
 void generate() {
