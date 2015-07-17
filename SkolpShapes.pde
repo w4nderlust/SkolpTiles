@@ -59,7 +59,7 @@ public float saturationB = 0;
 public float brightnessB = 75;
 
 public float hue_shift = 180; // between 0 and 360
-public int shift_direction = 1; // true means to the right, false to the left
+public int shift_direction = 1; // 1 means to the right, 0 to the left
 public int gradient_orientation = 8; // 0 means from top to bottom and then clockwise up to 7
 public float vertical_shift_step = 0;
 public float horizontal_shift_step = 0;
@@ -292,8 +292,8 @@ void setup() {
             .setItemWidth(15)
               .setSpacingColumn(25)
                 .setNoneSelectedAllowed(false)
-                  .addItem("right", 1)
-                    .addItem("left", -1)
+                  .addItem("right", 0)
+                    .addItem("left", 1)
                       .activate(0)
                         ;
 
@@ -1353,7 +1353,11 @@ void hue_shift(float num) {
 }
 
 void direction(int num) {
-  shift_direction = num;
+  if (num == 0) {
+    shift_direction = 1;
+  } else {
+    shift_direction = -1;
+  }
 }
 
 void randomize() {
@@ -1400,10 +1404,8 @@ void randomize() {
   ((Range) cp5.getController("external")).setRangeValues(r_rect_width_min, r_rect_width_max);
 
   int r_orientation = (int) random(0, 9);
-  println(r_orientation);
   ((RadioButton) cp5.get("orientation")).activate(r_orientation);
   orientation(r_orientation);
-    println(gradient_orientation);
 
   cp5.getController("hue_shift").setValue(random(0, 360));
 
