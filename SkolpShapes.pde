@@ -3,17 +3,19 @@ import controlP5.*;
 
 public ControlP5 cp5;
 
-public float window_width = 700;
-public float window_height = 700;
+public int viewport_width = 700;
+public int viewport_height = 700;
 
-public float shape_x = 50;
-public float shape_y = 50;
+public float shape_x = 0.1;
+public float shape_y = 0.1;
 public float shape_width = 600;
 public float shape_height = 600;
 public int matrix_rows = 3; //min 2
 public int matrix_cols = 4; // min 2
 public int rows = 3; //min 2
 public int cols = 4; // min 2
+
+public float padding = 0.1;
 
 public float min_rect_width = 0.2;
 public float max_rect_width = 0.6;
@@ -189,32 +191,43 @@ void setup() {
       .setSize(300, 15)
         .setRange(0, 100)
           .setValue(75);
-
-  cp5.addSlider("rows")
+          
+  cp5.addSlider("v_width")
     .setPosition(710, 410)
+      .setSize(300, 15)
+        .setRange(100, 700)
+          .setValue(700);
+  cp5.addSlider("v_height")
+    .setPosition(710, 425)
+      .setSize(300, 15)
+        .setRange(100, 700)
+          .setValue(700);
+
+ cp5.addSlider("rows")
+    .setPosition(710, 445)
       .setSize(300, 15)
         .setRange(2, 10)
           .setValue(3);
   cp5.addSlider("cols")
-    .setPosition(710, 425)
+    .setPosition(710, 460)
       .setSize(300, 15)
         .setRange(2, 10)
           .setValue(3);
-
+          
   cp5.addSlider("margin_rect")
-    .setPosition(710, 455)
+    .setPosition(710, 480)
       .setSize(300, 15)
         .setRange(0, 0.5)
           .setValue(0.05);
   cp5.addSlider("margin_point")
-    .setPosition(710, 475)
+    .setPosition(710, 495)
       .setSize(300, 15)
         .setRange(0, 0.5)
           .setValue(0.15);
 
   Range range_rect_width = cp5.addRange("rect_width")
     .setBroadcast(false) 
-      .setPosition(710, 505)
+      .setPosition(710, 515)
         .setSize(300, 15)
           .setHandleSize(20)
             .setRange(0, 1)
@@ -223,7 +236,7 @@ void setup() {
 
   Range range_rect_height = cp5.addRange("rect_height")
     .setBroadcast(false) 
-      .setPosition(710, 520)
+      .setPosition(710, 530)
         .setSize(300, 15)
           .setHandleSize(20)
             .setRange(0, 1)
@@ -233,8 +246,8 @@ void setup() {
   cp5.addSlider("padding")
     .setPosition(710, 550)
       .setSize(300, 15)
-        .setRange(0, 325)
-          .setValue(50);
+        .setRange(0, 0.5)
+          .setValue(0.1);
 
   Range range_eternal = cp5.addRange("external")
     .setBroadcast(false) 
@@ -322,8 +335,11 @@ void draw() {
 }
 
 void randomizeShape() {
-  matrix_rows = rows;
-  matrix_cols = cols;
+  float x0 = (700 - viewport_width) / 2.0;
+  float y0 = (700 - viewport_height) / 2.0;
+  
+  matrix_rows = cols;
+  matrix_cols = rows;
   rect_matrix = new Rectangle[matrix_rows][matrix_cols];
   point_matrix = new Point[matrix_rows + 1][matrix_cols + 1];
 
@@ -335,10 +351,10 @@ void randomizeShape() {
       float w = random(min_rect_width * x_range, max_rect_width * x_range);
       float h = random(min_rect_height * y_range, max_rect_height * y_range);
 
-      float min_pos_x = shape_x + (i * x_range) + (percent_margin_rect * (x_range - w));
-      float max_pos_x = shape_x + ((i + 1) * x_range) - w - (percent_margin_rect * (x_range - w));
-      float min_pos_y = shape_y + (j * y_range) + (percent_margin_rect * (y_range - h));
-      float max_pos_y = shape_y + ((j + 1) * y_range) - h - (percent_margin_rect * (y_range - h));
+      float min_pos_x = x0 + shape_x + (i * x_range) + (percent_margin_rect * (x_range - w));
+      float max_pos_x = x0 + shape_x + ((i + 1) * x_range) - w - (percent_margin_rect * (x_range - w));
+      float min_pos_y = y0 + shape_y + (j * y_range) + (percent_margin_rect * (y_range - h));
+      float max_pos_y = y0 + shape_y + ((j + 1) * y_range) - h - (percent_margin_rect * (y_range - h));
 
       float ax = random(min_pos_x, max_pos_x);
       float ay = random(min_pos_y, max_pos_y);
@@ -366,65 +382,65 @@ void randomizeShape() {
         max_pos_y_point - (range_y * percent_margin_point)));
 
         if (i == 1 && j == 1) {
-          float min_range_x = no.x - (no.x * percent_max_external);
-          float max_range_x = no.x - (no.x * percent_min_external);
-          float min_range_y = no.y - (no.y * percent_max_external);
-          float max_range_y = no.y - (no.y * percent_min_external);
+          float min_range_x = no.x - ((no.x - x0) * percent_max_external);
+          float max_range_x = no.x - ((no.x - x0) * percent_min_external);
+          float min_range_y = no.y - ((no.y - y0) * percent_max_external);
+          float max_range_y = no.y - ((no.y - y0) * percent_min_external);
           point_matrix[0][0] = new Point(
           random(min_range_x, max_range_x), 
           random(min_range_y, max_range_y));
         }
         if (j == 1) {
-          float min_range_y = min(no.y, ne.y) - (min(no.y, ne.y) * percent_max_external);
-          float max_range_y = min(no.y, ne.y) - (min(no.y, ne.y) * percent_min_external);
+          float min_range_y = min(no.y, ne.y) - ((min(no.y, ne.y) - y0) * percent_max_external);
+          float max_range_y = min(no.y, ne.y) - ((min(no.y, ne.y) - y0) * percent_min_external);
           point_matrix[i][0] = new Point(
           random(no.x + no.w, ne.x), 
           random(min_range_y, max_range_y));
         }
         if (i == matrix_rows - 1 && j == 1) {
-          float min_range_x = ne.x + ne.w + ((window_width - (ne.x + ne.w)) * percent_min_external);
-          float max_range_x = ne.x + ne.w + ((window_width - (ne.x + ne.w)) * percent_max_external);
-          float min_range_y = ne.y - (ne.y * percent_max_external);
-          float max_range_y = ne.y - (ne.y * percent_min_external);
+          float min_range_x = ne.x + ne.w + ((viewport_width + x0 - (ne.x + ne.w)) * percent_min_external);
+          float max_range_x = ne.x + ne.w + ((viewport_width + x0 - (ne.x + ne.w)) * percent_max_external);
+          float min_range_y = ne.y - ((ne.y - y0) * percent_max_external);
+          float max_range_y = ne.y - ((ne.y - y0) * percent_min_external);
           point_matrix[matrix_rows][0] = new Point(
           random(min_range_x, max_range_x), 
           random(min_range_y, max_range_y));
         }
-        if (i == matrix_rows -1) {
-          float min_range_x = max(ne.x + ne.w, se.x + se.w) + ((window_width - max(ne.x + ne.w, se.x + se.w)) * percent_min_external);
-          float max_range_x = max(ne.x + ne.w, se.x + se.w) + ((window_width - max(ne.x + ne.w, se.x + se.w)) * percent_max_external);
+        if (i == matrix_rows - 1) {
+          float min_range_x = max(ne.x + ne.w, se.x + se.w) + ((viewport_width + x0 - max(ne.x + ne.w, se.x + se.w)) * percent_min_external);
+          float max_range_x = max(ne.x + ne.w, se.x + se.w) + ((viewport_width + x0 - max(ne.x + ne.w, se.x + se.w)) * percent_max_external);
           point_matrix[matrix_rows][j] = new Point(
           random(min_range_x, max_range_x), 
           random(ne.y + ne.h, se.y));
         }
         if (i == matrix_rows - 1 && j == matrix_cols - 1) {
-          float min_range_x = se.x + se.w + ((window_width - (se.x + se.w)) * percent_min_external);
-          float max_range_x = se.x + se.w + ((window_width - (se.x + se.w)) * percent_max_external);
-          float min_range_y = se.y + se.h + ((window_height - (se.y + se.h)) * percent_min_external);
-          float max_range_y = se.y + se.h + ((window_height - (se.y + se.h)) * percent_max_external);
+          float min_range_x = se.x + se.w + ((viewport_width + x0 - (se.x + se.w)) * percent_min_external);
+          float max_range_x = se.x + se.w + ((viewport_width + x0 - (se.x + se.w)) * percent_max_external);
+          float min_range_y = se.y + se.h + ((viewport_height + y0 - (se.y + se.h)) * percent_min_external);
+          float max_range_y = se.y + se.h + ((viewport_height + y0 - (se.y + se.h)) * percent_max_external);
           point_matrix[matrix_rows][matrix_cols] = new Point(
           random(min_range_x, max_range_x), 
           random(min_range_y, max_range_y));
         }
         if (j == matrix_cols - 1) {
-          float min_range_y = max(so.y + so.h, se.y + se.h) + ((window_height - max(so.y + so.h, se.y + se.h)) * percent_min_external);
-          float max_range_y = max(so.y + so.h, se.y + se.h) + ((window_height - max(so.y + so.h, se.y + se.h)) * percent_max_external);
+          float min_range_y = max(so.y + so.h, se.y + se.h) + ((viewport_height + y0 - max(so.y + so.h, se.y + se.h)) * percent_min_external);
+          float max_range_y = max(so.y + so.h, se.y + se.h) + ((viewport_height + y0 - max(so.y + so.h, se.y + se.h)) * percent_max_external);
           point_matrix[i][matrix_cols] = new Point(
           random(so.x + so.w, se.x), 
           random(min_range_y, max_range_y));
         }
         if (i == 1 && j == matrix_cols - 1) {
-          float min_range_x = so.x - (so.x * percent_max_external);
-          float max_range_x = so.x - (so.x * percent_min_external);
-          float min_range_y = so.y + so.h + ((window_height - (so.y + so.h)) * percent_min_external);
-          float max_range_y = so.y + so.h + ((window_height - (so.y + so.h)) * percent_max_external);
+          float min_range_x = so.x - ((so.x - x0) * percent_max_external);
+          float max_range_x = so.x - ((so.x - x0) * percent_min_external);
+          float min_range_y = so.y + so.h + ((viewport_height + y0 - (so.y + so.h)) * percent_min_external);
+          float max_range_y = so.y + so.h + ((viewport_height + y0 - (so.y + so.h)) * percent_max_external);
           point_matrix[0][matrix_cols] = new Point(
           random(min_range_x, max_range_x), 
           random(min_range_y, max_range_y));
         }
         if (i == 1) {
-          float min_range_x = min(so.x, no.x) - (min(so.x, no.x) * percent_max_external);
-          float max_range_x = min(so.x, no.x) - (min(so.x, no.x) * percent_min_external);
+          float min_range_x = min(so.x, no.x) - ((min(so.x, no.x) - x0) * percent_max_external);
+          float max_range_x = min(so.x, no.x) - ((min(so.x, no.x) - x0) * percent_min_external);
           point_matrix[0][j] = new Point(
           random(min_range_x, max_range_x), 
           random(no.y + no.h, so.y));
@@ -493,7 +509,6 @@ void drawShape() {
         Rectangle se = rect_matrix[i][j];
 
         if (pair) {
-
           fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
         } else {
           fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1)));
@@ -669,8 +684,11 @@ void drawShape() {
 
 
 void drawPdf() {
+  float x0 = (700 - viewport_width) / 2.0;
+  float y0 = (700 - viewport_height) / 2.0;
+  
   fileNum++;
-  PGraphics pdf = createGraphics(700, 700, PDF, fileName + "-" + fileNum + ".pdf");
+  PGraphics pdf = createGraphics(viewport_width, viewport_height, PDF, fileName + "-" + fileNum + ".pdf");
   pdf.beginDraw();
   pdf.colorMode(HSB, 360, 100, 100, 1);
 
@@ -681,7 +699,7 @@ void drawPdf() {
 
       Rectangle rect = rect_matrix[i][j];
       pdf.fill(colS);
-      pdf.rect(rect.x, rect.y, rect.w, rect.h);
+      pdf.rect(rect.x - x0, rect.y - y0, rect.w, rect.h);
 
       if (i > 0 && j > 0) {
         boolean pair = (i + j) % 2 == 0;
@@ -704,12 +722,12 @@ void drawPdf() {
           ;
         }
         pdf.beginShape();
-        pdf.vertex(no.x + no.w, no.y + no.h);
-        pdf.vertex(no.x + no.w, no.y);
-        pdf.vertex(pn.x, pn.y);
-        pdf.vertex(ne.x, ne.y);
-        pdf.vertex(ne.x, ne.y + ne.h);
-        pdf.vertex(p.x, p.y);
+        pdf.vertex(no.x + no.w - x0, no.y + no.h - y0);
+        pdf.vertex(no.x + no.w - x0, no.y - y0);
+        pdf.vertex(pn.x - x0, pn.y - y0);
+        pdf.vertex(ne.x - x0, ne.y - y0);
+        pdf.vertex(ne.x - x0, ne.y + ne.h - y0);
+        pdf.vertex(p.x - x0, p.y - y0);
         pdf.endShape();
 
         if (pair) {
@@ -718,12 +736,12 @@ void drawPdf() {
           pdf.fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
         }
         pdf.beginShape();
-        pdf.vertex(so.x + so.w, so.y);
-        pdf.vertex(so.x, so.y);
-        pdf.vertex(po.x, po.y);
-        pdf.vertex(no.x, no.y + no.h);
-        pdf.vertex(no.x + no.w, no.y + no.h);
-        pdf.vertex(p.x, p.y);
+        pdf.vertex(so.x + so.w - x0, so.y - y0);
+        pdf.vertex(so.x - x0, so.y - y0);
+        pdf.vertex(po.x - x0, po.y - y0);
+        pdf.vertex(no.x - x0, no.y + no.h - y0);
+        pdf.vertex(no.x + no.w - x0, no.y + no.h - y0);
+        pdf.vertex(p.x - x0, p.y - y0);
         pdf.endShape();
 
         if (i == matrix_rows - 1) {
@@ -733,12 +751,12 @@ void drawPdf() {
             pdf.fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           }
           pdf.beginShape();
-          pdf.vertex(ne.x, ne.y + ne.h);
-          pdf.vertex(ne.x + ne.w, ne.y + ne.h);
-          pdf.vertex(pe.x, pe.y);
-          pdf.vertex(se.x + se.w, se.y);
-          pdf.vertex(se.x, se.y);
-          pdf.vertex(p.x, p.y);
+          pdf.vertex(ne.x - x0, ne.y + ne.h - y0);
+          pdf.vertex(ne.x + ne.w - x0, ne.y + ne.h - y0);
+          pdf.vertex(pe.x - x0, pe.y - y0);
+          pdf.vertex(se.x + se.w - x0, se.y - y0);
+          pdf.vertex(se.x - x0, se.y - y0);
+          pdf.vertex(p.x - x0, p.y - y0);
           pdf.endShape();
         }
 
@@ -750,12 +768,12 @@ void drawPdf() {
             pdf.fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           }
           pdf.beginShape();
-          pdf.vertex(se.x, se.y);
-          pdf.vertex(se.x, se.y + se.h);
-          pdf.vertex(ps.x, ps.y);
-          pdf.vertex(so.x + so.w, so.y + so.h);
-          pdf.vertex(so.x + so.w, so.y);
-          pdf.vertex(p.x, p.y);
+          pdf.vertex(se.x - x0, se.y - y0);
+          pdf.vertex(se.x - x0, se.y + se.h - y0);
+          pdf.vertex(ps.x - x0, ps.y - y0);
+          pdf.vertex(so.x + so.w - x0, so.y + so.h - y0);
+          pdf.vertex(so.x + so.w - x0, so.y - y0);
+          pdf.vertex(p.x - x0, p.y - y0);
           pdf.endShape();
         }
 
@@ -769,7 +787,7 @@ void drawPdf() {
           } else {
             pdf.fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           }
-          pdf.quad(angle.x, angle.y, ep.x, ep.y, no.x, no.y + no.h, no.x, no.y);
+          pdf.quad(angle.x - x0, angle.y - y0, ep.x - x0, ep.y - y0, no.x - x0, no.y + no.h - y0, no.x - x0, no.y - y0);
         }
         if (j == 1) {
           Point prev = point_matrix[i-1][0];
@@ -780,7 +798,7 @@ void drawPdf() {
           } else {
             pdf.fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           }
-          pdf.quad(prev.x, prev.y, ep.x, ep.y, no.x + no.w, no.y, no.x, no.y);
+          pdf.quad(prev.x - x0, prev.y - y0, ep.x - x0, ep.y - y0, no.x + no.w - x0, no.y - y0, no.x - x0, no.y - y0);
         }
         if (i == matrix_rows - 1 && j == 1) {
           Point angle = point_matrix[matrix_rows][0];
@@ -791,7 +809,7 @@ void drawPdf() {
           } else {
             pdf.fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           }
-          pdf.quad(ep.x, ep.y, angle.x, angle.y, ne.x + ne.w, ne.y, ne.x, ne.y);
+          pdf.quad(ep.x - x0, ep.y - y0, angle.x - x0, angle.y - y0, ne.x + ne.w - x0, ne.y - y0, ne.x - x0, ne.y - y0);
         }
         if (i == matrix_rows - 1) {
           Point prev = point_matrix[matrix_rows][j - 1];
@@ -802,7 +820,7 @@ void drawPdf() {
           } else {
             pdf.fill(color(rotateHue(col2, i, j), saturation(col2), brightness(col2)));
           }
-          pdf.quad(prev.x, prev.y, ep.x, ep.y, ne.x + ne.w, ne.y + ne.h, ne.x + ne.w, ne.y);
+          pdf.quad(prev.x - x0, prev.y - y0, ep.x - x0, ep.y - y0, ne.x + ne.w - x0, ne.y + ne.h - y0, ne.x + ne.w - x0, ne.y - y0);
         }
         if (i == matrix_rows - 1 && j == matrix_cols - 1) {
           Point angle = point_matrix[matrix_rows][matrix_cols];
@@ -813,7 +831,7 @@ void drawPdf() {
           } else {
             pdf.fill(color(rotateHue(col1, i, j), saturation(col1), brightness(col1)));
           }
-          pdf.quad(ep.x, ep.y, angle.x, angle.y, se.x + se.w, se.y + se.h, se.x + se.w, se.y);
+          pdf.quad(ep.x - x0, ep.y - y0, angle.x - x0, angle.y - y0, se.x + se.w - x0, se.y + se.h - y0, se.x + se.w - x0, se.y - y0);
         }
         if (j == matrix_cols - 1) {
           Point prev = point_matrix[i + 1][matrix_cols];
@@ -824,7 +842,7 @@ void drawPdf() {
           } else {
             pdf.fill(color(rotateHue(col3, i, j), saturation(col3), brightness(col3)));
           }
-          pdf.quad(ep.x, ep.y, prev.x, prev.y, se.x + se.w, se.y + se.h, se.x, se.y + se.h);
+          pdf.quad(ep.x - x0, ep.y - y0, prev.x - x0, prev.y - y0, se.x + se.w - x0, se.y + se.h - y0, se.x - x0, se.y + se.h - y0);
         }
         if (i == 1 && j == matrix_cols - 1) {
           Point angle = point_matrix[0][matrix_cols];
@@ -835,7 +853,7 @@ void drawPdf() {
           } else {
             pdf.fill(color(rotateHue(col4, i, j), saturation(col4), brightness(col4)));
           }
-          pdf.quad(ep.x, ep.y, angle.x, angle.y, so.x, so.y + so.h, so.x + so.w, so.y + so.h);
+          pdf.quad(ep.x - x0, ep.y - y0, angle.x - x0, angle.y - y0, so.x - x0, so.y + so.h - y0, so.x + so.w - x0, so.y + so.h - y0);
         }
         if (i == 1) {
           Point prev = point_matrix[0][j + 1];
@@ -846,7 +864,7 @@ void drawPdf() {
           } else {
             pdf.fill(col1);
           }
-          pdf.quad(ep.x, ep.y, prev.x, prev.y, so.x, so.y + so.h, so.x, so.y);
+          pdf.quad(ep.x - x0, ep.y - y0, prev.x - x0, prev.y - y0, so.x - x0, so.y + so.h - y0, so.x - x0, so.y - y0);
         }
       }
     }
@@ -1270,6 +1288,18 @@ void cols(int number) {
   cols = number;
 }
 
+void v_width(int number) {
+  viewport_width = number;
+  shape_x = viewport_width * padding;
+  shape_width = viewport_width - (2 * shape_x);
+}
+
+void v_height(int number) {
+  viewport_height = number;
+  shape_y = viewport_height * padding;
+  shape_height = viewport_height - (2 * shape_y);
+}
+
 void margin_rect(float number) {
   percent_margin_rect = number;
 }
@@ -1279,10 +1309,11 @@ void margin_point(float number) {
 }
 
 void padding(float number) {
-  shape_x = number;
-  shape_y = number;
-  shape_width = 700 - (2 * shape_x);
-  shape_height = 700 - (2 * shape_y);
+  padding = number;
+  shape_x = viewport_width * padding;
+  shape_y = viewport_height * padding;
+  shape_width = viewport_width - (2 * shape_x);
+  shape_height = viewport_height - (2 * shape_y);
 }
 
 void controlEvent(ControlEvent event) {
@@ -1302,7 +1333,6 @@ void controlEvent(ControlEvent event) {
 }
 
 void orientation(int num) {
-  println(num);
   gradient_orientation = num;
   if (num >= 1 && num <= 3) {
     dirX = -1;
@@ -1349,6 +1379,9 @@ void randomize() {
   cp5.getController("rows").setValue(random(2, 10));
   cp5.getController("cols").setValue(random(2, 10));
 
+  cp5.getController("v_width").setValue(random(100, 700));
+  cp5.getController("v_height").setValue(random(100, 700));
+  
   cp5.getController("margin_rect").setValue(random(0, 0.5));
   cp5.getController("margin_point").setValue(random(0, 0.5));
 
@@ -1360,16 +1393,18 @@ void randomize() {
   float r_rect_height_max = random(r_rect_width_min, 1);
   ((Range) cp5.getController("rect_height")).setRangeValues(r_rect_width_min, r_rect_width_max);
 
-  cp5.getController("padding").setValue(random(0, 325));
+  cp5.getController("padding").setValue(random(0, 0.5));
 
   float r_external_min = random(0, 1);
   float r_external_max = random(r_rect_width_min, 1);
   ((Range) cp5.getController("external")).setRangeValues(r_rect_width_min, r_rect_width_max);
 
   int r_orientation = (int) random(0, 9);
+  println(r_orientation);
   ((RadioButton) cp5.get("orientation")).activate(r_orientation);
   orientation(r_orientation);
-  
+    println(gradient_orientation);
+
   cp5.getController("hue_shift").setValue(random(0, 360));
 
   int r_direction = (int) random(0, 2);
