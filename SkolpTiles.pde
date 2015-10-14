@@ -1411,14 +1411,14 @@ void randomize() {
   ((Range) cp5.getController("rect_width")).setRangeValues(r_rect_width_min, r_rect_width_max);
 
   float r_rect_height_min = random(0, 1);
-  float r_rect_height_max = random(r_rect_width_min, 1);
-  ((Range) cp5.getController("rect_height")).setRangeValues(r_rect_width_min, r_rect_width_max);
+  float r_rect_height_max = random(r_rect_height_min, 1);
+  ((Range) cp5.getController("rect_height")).setRangeValues(r_rect_height_min, r_rect_height_max);
 
   cp5.getController("padding").setValue(random(0, 0.5));
 
   float r_external_min = random(0, 1);
-  float r_external_max = random(r_rect_width_min, 1);
-  ((Range) cp5.getController("external")).setRangeValues(r_rect_width_min, r_rect_width_max);
+  float r_external_max = random(r_external_min, 1);
+  ((Range) cp5.getController("external")).setRangeValues(r_external_min, r_external_max);
 
   int r_orientation = (int) random(0, 9);
   ((RadioButton) cp5.get("orientation")).activate(orientationMap[r_orientation]);
