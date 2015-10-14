@@ -1189,7 +1189,7 @@ void load() {
 }
 
 void load_callback(File selection) {
-  if (selection != null && selection.getName().toLowerCase().endsWith(".ser")) {
+  if (selection != null) {
     cp5.loadProperties(selection.getAbsolutePath());
     generate();
   }
