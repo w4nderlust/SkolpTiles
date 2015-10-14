@@ -880,7 +880,6 @@ void drawPdf() {
   }
 
   if (viewport_width < skolptiles_tag.width) {
-    print(viewport_width / skolptiles_tag.width);
     skolptiles_tag.scale(viewport_width / skolptiles_tag.width);
   }
   pdf.shape(skolptiles_tag, pdfBorder, (pdfBorder * 1.75) + viewport_height);
