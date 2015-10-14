@@ -65,6 +65,7 @@ public float vertical_shift_step = 0;
 public float horizontal_shift_step = 0;
 public int dirX = 1;
 public int dirY = 1;
+public int[] orientationMap = {1, 2, 5, 8, 7, 6, 3, 0, 4};
 
 public Rectangle[][] rect_matrix;
 public Point[][] point_matrix;
@@ -1421,7 +1422,7 @@ void randomize() {
   ((Range) cp5.getController("external")).setRangeValues(r_rect_width_min, r_rect_width_max);
 
   int r_orientation = (int) random(0, 9);
-  ((RadioButton) cp5.get("orientation")).activate(r_orientation);
+  ((RadioButton) cp5.get("orientation")).activate(orientationMap[r_orientation]);
   orientation(r_orientation);
 
   cp5.getController("hue_shift").setValue(random(0, 360));
