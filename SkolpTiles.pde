@@ -77,7 +77,7 @@ public color green = color(0, 255, 0);
 public boolean shouldRandomize = true;
 public boolean recordPDF = false;
 
-public int pdfBorder = 50;
+public int pdfBorder = 20;
 public PShape skolptiles_tag;
 
 public String fileName = "skolptiles";
@@ -199,12 +199,12 @@ void setup() {
   cp5.addSlider("v_width")
     .setPosition(710, 410)
       .setSize(300, 15)
-        .setRange(100, 700)
+        .setRange(200, 700)
           .setValue(700);
   cp5.addSlider("v_height")
     .setPosition(710, 425)
       .setSize(300, 15)
-        .setRange(100, 700)
+        .setRange(200, 700)
           .setValue(700);
 
  cp5.addSlider("rows")
@@ -692,7 +692,7 @@ void drawPdf() {
   float y0 = ((700 - viewport_height) / 2.0) - pdfBorder;
   
   fileNum++;
-  PGraphics pdf = createGraphics(viewport_width + (pdfBorder * 2), viewport_height + (pdfBorder * 3), PDF, fileName + "-" + fileNum + ".pdf");
+  PGraphics pdf = createGraphics(viewport_width + (pdfBorder * 2), viewport_height + (pdfBorder * 4), PDF, fileName + "-" + fileNum + ".pdf");
   pdf.beginDraw();
   pdf.colorMode(HSB, 360, 100, 100, 1);
 
@@ -879,12 +879,9 @@ void drawPdf() {
     }
   }
 
-  if (viewport_width < skolptiles_tag.width) {
-    skolptiles_tag.scale(viewport_width / skolptiles_tag.width);
-  }
-  pdf.shape(skolptiles_tag, pdfBorder, (pdfBorder * 1.75) + viewport_height);
-  skolptiles_tag.resetMatrix();
-  
+  pdf.shapeMode(CENTER);
+  pdf.shape(skolptiles_tag, (viewport_width / 2.0) + pdfBorder, viewport_height + (2.5 * pdfBorder));
+
   pdf.dispose();
   pdf.endDraw();
 }
@@ -1400,8 +1397,8 @@ void randomize() {
   cp5.getController("rows").setValue(random(2, 10));
   cp5.getController("cols").setValue(random(2, 10));
 
-  cp5.getController("v_width").setValue(random(100, 700));
-  cp5.getController("v_height").setValue(random(100, 700));
+  cp5.getController("v_width").setValue(random(200, 700));
+  cp5.getController("v_height").setValue(random(200, 700));
   
   cp5.getController("margin_rect").setValue(random(0, 0.5));
   cp5.getController("margin_point").setValue(random(0, 0.5));
