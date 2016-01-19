@@ -65,7 +65,6 @@ public float vertical_shift_step = 0;
 public float horizontal_shift_step = 0;
 public int dirX = 1;
 public int dirY = 1;
-public int[] orientationMap = {1, 2, 5, 8, 7, 6, 3, 0, 4};
 
 public Rectangle[][] rect_matrix;
 public Point[][] point_matrix;
@@ -84,11 +83,14 @@ public String fileName = "skolptiles";
 public int fileNum = 0;
 public float shape_border = 10;
 
+public int[] orientationMap = {1, 2, 5, 8, 7, 6, 3, 0, 4};
+
 void setup() {
-  size(1080, 700, OPENGL);
+  size(1080, 700);  
   colorMode(HSB, 360, 100, 100, 1);
   skolptiles_tag = loadShape("skolptiles_tag.svg");
   cp5 = new ControlP5(this);
+  cp5.getProperties().setFormat(ControlP5.SERIALIZED);
 
   Button buttonLoad = cp5.addButton("load")
     .setPosition(710, 10)
@@ -881,7 +883,7 @@ void drawPdf() {
 
   pdf.shapeMode(CENTER);
   pdf.shape(skolptiles_tag, (viewport_width / 2.0) + pdfBorder, viewport_height + (2.5 * pdfBorder));
-
+  
   pdf.dispose();
   pdf.endDraw();
 }
@@ -1186,8 +1188,11 @@ void load() {
 }
 
 void load_callback(File selection) {
-  if (selection != null) {
+  if (selection != null && selection.getName().toLowerCase().endsWith(".ser")) {
     cp5.loadProperties(selection.getAbsolutePath());
+    int loaded_orientation = (int) cp5.get("orientation").getValue();
+    gradient_orientation = loaded_orientation;
+    orientation(gradient_orientation);
     generate();
   }
 }
