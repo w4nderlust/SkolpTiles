@@ -86,12 +86,17 @@ public float shape_border = 10;
 public int[] orientationMap = {1, 2, 5, 8, 7, 6, 3, 0, 4};
 
 void setup() {
-  size(1080, 700, FX2D);  
+  size(1080, 700, FX2D);
+  pixelDensity(displayDensity());
   colorMode(HSB, 360, 100, 100, 1);
   skolptiles_tag = loadShape("skolptiles_tag.svg");
   cp5 = new ControlP5(this);
   cp5.getProperties().setFormat(ControlP5.SERIALIZED);
-  cp5.setFont(createFont("Arial", 7));
+  if (displayDensity() < 2) {
+    cp5.setFont(createFont("Arial", 7));
+  } else {
+    cp5.setFont(createFont("Arial", 3.5));
+  }
   
   Button buttonLoad = cp5.addButton("load")
     .setPosition(710, 10)
