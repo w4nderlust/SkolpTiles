@@ -882,8 +882,7 @@ void drawPdf() {
     }
   }
 
-  pdf.shapeMode(CENTER);
-  pdf.shape(skolptiles_tag, (viewport_width / 2.0) + pdfBorder, viewport_height + (2.5 * pdfBorder));
+  pdf.shape(skolptiles_tag, pdfBorder, viewport_height + (2 * pdfBorder));
   
   pdf.dispose();
   pdf.endDraw();
